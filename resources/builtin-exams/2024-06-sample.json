@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "examLabel": "CET6 2024年6月真题（示例）",
+  "questions": [
+    {
+      "questionType": "LISTENING_MCQ",
+      "section": "LISTENING",
+      "subSection": "NEWS_REPORT",
+      "difficulty": 3,
+      "knowledgePoints": ["listening-detail", "news-vocabulary"],
+      "content": {
+        "stem": "What is the news report mainly about?",
+        "passage": "The World Health Organization announced yesterday that it is launching a new global initiative to combat antimicrobial resistance. The initiative, which will be funded by member states and private foundations, aims to develop new antibiotics and improve surveillance of drug-resistant infections worldwide. WHO Director-General stated that antimicrobial resistance is one of the top 10 global public health threats facing humanity.",
+        "questionText": "What is the main purpose of the WHO's new initiative?"
+      },
+      "options": [
+        { "label": "A", "text": "To fund healthcare in developing countries" },
+        { "label": "B", "text": "To combat antimicrobial resistance globally" },
+        { "label": "C", "text": "To improve hospital conditions worldwide" },
+        { "label": "D", "text": "To train more medical professionals" }
+      ],
+      "correctAnswer": "B",
+      "explanation": "新闻第一句明确指出 WHO 启动新全球倡议以对抗抗菌素耐药性（antimicrobial resistance）。A、C、D 均为干扰项，未在原文提及。",
+      "sourceExam": "CET6_2024_06",
+      "examYear": 2024,
+      "examSession": "06"
+    },
+    {
+      "questionType": "LISTENING_MCQ",
+      "section": "LISTENING",
+      "subSection": "LONG_CONVERSATION",
+      "difficulty": 4,
+      "knowledgePoints": ["listening-inference", "conversation-detail"],
+      "content": {
+        "stem": "What does the woman suggest the man do?",
+        "passage": "M: I've been thinking about changing my major. I'm not really enjoying the engineering courses anymore.\nW: Have you talked to your academic advisor about it? She might be able to help you explore other options. Actually, my cousin switched from engineering to business administration last year and he's much happier now. But before you make any drastic changes, maybe you should try taking a few elective courses in the field you're interested in first.\nM: That's a good point. I don't want to rush into anything.",
+        "questionText": "What does the woman suggest the man do?"
+      },
+      "options": [
+        { "label": "A", "text": "Switch to business administration immediately" },
+        { "label": "B", "text": "Talk to his academic advisor and try some elective courses first" },
+        { "label": "C", "text": "Ask his cousin for advice about changing majors" },
+        { "label": "D", "text": "Drop out of the engineering program right away" }
+      ],
+      "correctAnswer": "B",
+      "explanation": "女士建议先和学术顾问谈谈，并且先试听几门感兴趣的选修课再做决定。B 选项完整概括了女士的两个建议。",
+      "sourceExam": "CET6_2024_06",
+      "examYear": 2024,
+      "examSession": "06"
+    },
+    {
+      "questionType": "LISTENING_MCQ",
+      "section": "LISTENING",
+      "subSection": "LECTURE",
+      "difficulty": 5,
+      "knowledgePoints": ["listening-lecture", "academic-vocabulary"],
+      "content": {
+        "stem": "According to the lecture, what is the key difference between machine learning and traditional programming?",
+        "passage": "Today's lecture is about the fundamentals of artificial intelligence. One crucial distinction I want you to understand is the difference between traditional programming and machine learning. In traditional programming, a developer writes explicit rules for the computer to follow. The computer simply executes these predetermined instructions. In machine learning, however, the approach is fundamentally reversed. Instead of writing rules, you feed the computer大量 data and let it discover the patterns and rules on its own. This paradigm shift is what makes machine learning so powerful for solving complex problems where writing explicit rules would be impractical or impossible.",
+        "questionText": "What is the key difference between machine learning and traditional programming according to the lecture?"
+      },
+      "options": [
+        { "label": "A", "text": "Machine learning requires more computing power" },
+        { "label": "B", "text": "Traditional programming is always more accurate" },
+        { "label": "C", "text": "In ML, computers learn rules from data instead of following pre-written rules" },
+        { "label": "D", "text": "Traditional programming can only handle simple tasks" }
+      ],
+      "correctAnswer": "C",
+      "explanation": "讲座核心观点：传统编程是人写规则让计算机执行，机器学习是让计算机从数据中自己发现规律。C 准确概括了这个'范式逆转'。",
+      "sourceExam": "CET6_2024_06",
+      "examYear": 2024,
+      "examSession": "06"
+    },
+    {
+      "questionType": "BANKED_CLOZE",
+      "section": "READING",
+      "difficulty": 4,
+      "knowledgePoints": ["vocabulary-context", "collocation"],
+      "content": {
+        "stem": "In the age of digital transformation, businesses must adapt to survive. Companies that fail to embrace technological change risk becoming ___1___. The most successful organizations are those that view disruption not as a threat but as an opportunity for ___2___. According to recent research, organizations with a strong culture of innovation tend to ___3___ their competitors by a significant margin in terms of revenue growth. Furthermore, employees in these companies report higher levels of job ___4___ and are more likely to remain with the organization long-term. The key lies in fostering an environment where creative thinking is not just ___5___ but actively rewarded.",
+        "passageWithBlanks": "In the age of digital transformation, businesses must adapt to survive. Companies that fail to embrace technological change risk becoming {1}. The most successful organizations are those that view disruption not as a threat but as an opportunity for {2}. According to recent research, organizations with a strong culture of innovation tend to {3} their competitors by a significant margin in terms of revenue growth. Furthermore, employees in these companies report higher levels of job {4} and are more likely to remain with the organization long-term. The key lies in fostering an environment where creative thinking is not just {5} but actively rewarded.",
+        "wordBank": ["obsolete", "innovation", "outperform", "satisfaction", "tolerated", "irrelevant", "destruction", "underperform", "frustration", "discouraged"],
+        "blanks": [1, 2, 3, 4, 5]
+      },
+      "options": null,
+      "correctAnswer": "{\"1\":\"obsolete\",\"2\":\"innovation\",\"3\":\"outperform\",\"4\":\"satisfaction\",\"5\":\"tolerated\"}",
+      "explanation": "1. obsolete（过时的）— 不拥抱技术变革的企业面临过时的风险；2. innovation（创新）— 成功企业将颠覆视为创新机会；3. outperform（胜过）— 创新型企业营收显著超过竞争对手；4. satisfaction（满意度）— 员工满意度更高；5. tolerated（被容忍）— 创造性思维不仅仅是被容忍，而是被积极奖励。",
+      "sourceExam": "CET6_2024_06",
+      "examYear": 2024,
+      "examSession": "06"
+    },
+    {
+      "questionType": "CAREFUL_READING",
+      "section": "READING",
+      "difficulty": 5,
+      "knowledgePoints": ["reading-detail", "inference", "academic-vocabulary"],
+      "content": {
+        "stem": "What can be inferred from the passage about the relationship between urban green spaces and mental health?",
+        "passage": "A growing body of research suggests that urban green spaces play a crucial role in promoting mental health among city dwellers. A longitudinal study conducted across 20 European cities found that residents living within 300 meters of parks reported 20% lower rates of anxiety and depression compared to those in areas with limited green coverage. Interestingly, the benefits were not solely attributable to physical exercise; even passive exposure to green environments—such as simply looking at trees from a window—was associated with measurable reductions in cortisol levels. The researchers hypothesize that this effect stems from what they call 'attention restoration,' a process through which natural environments allow the brain to recover from the cognitive fatigue induced by urban stimuli. However, they caution that the quality of green spaces matters significantly; poorly maintained areas with safety concerns may actually exacerbate stress rather than reduce it.",
+        "questionText": "What can be inferred about the relationship between urban green spaces and mental health?"
+      },
+      "options": [
+        { "label": "A", "text": "Only active exercise in parks improves mental health" },
+        { "label": "B", "text": "The mental health benefits come mainly from physical activity in parks" },
+        { "label": "C", "text": "Even passive visual contact with nature can reduce stress hormones" },
+        { "label": "D", "text": "All green spaces equally reduce anxiety regardless of their condition" }
+      ],
+      "correctAnswer": "C",
+      "explanation": "原文指出 'even passive exposure to green environments—such as simply looking at trees from a window—was associated with measurable reductions in cortisol levels'，即仅仅是被动接触自然（如看窗外的树）也能降低皮质醇水平。A、B 与原文矛盾，D 被最后一句反驳（质量很重要）。",
+      "sourceExam": "CET6_2024_06",
+      "examYear": 2024,
+      "examSession": "06"
+    },
+    {
+      "questionType": "INFO_MATCHING",
+      "section": "READING",
+      "difficulty": 3,
+      "knowledgePoints": ["reading-matching", "paraphrase-recognition"],
+      "content": {
+        "stem": "Match each statement (36-40) with the correct paragraph (A-F). Note: there are more paragraphs than statements.",
+        "passage": "A. Remote work has become increasingly common since the pandemic, with studies showing that productivity can actually increase when employees work from home. However, the social isolation associated with remote work remains a significant concern.\n\nB. Corporate wellness programs have evolved significantly over the past decade. Many companies now offer mental health support, flexible working hours, and gym memberships as standard benefits.\n\nC. Artificial intelligence is transforming recruitment processes. AI-powered tools can screen thousands of applications in minutes, but critics argue that these systems may perpetuate existing biases in hiring.\n\nD. The gig economy continues to grow, with platforms like Uber and Fiverr connecting freelancers with clients worldwide. While this offers flexibility, it raises questions about job security and worker protections.\n\nE. Climate change is forcing businesses to reconsider their environmental impact. Many corporations have pledged to achieve carbon neutrality by 2050, though progress remains uneven across industries.\n\nF. Workplace diversity has become a priority for many organizations. Research consistently shows that diverse teams produce more innovative solutions, yet underrepresentation persists in senior leadership positions.",
+        "questionText": "36. Technology-based hiring methods may reproduce unfairness in the selection process.\n37. Working from home can lead to feelings of loneliness.\n38. Non-permanent workers lack the protection that traditional employees enjoy.\n39. Companies are making environmental commitments but at different speeds.\n40. Mixed groups of people generate more original ideas."
+      },
+      "options": null,
+      "correctAnswer": "{\"36\":\"C\",\"37\":\"A\",\"38\":\"D\",\"39\":\"E\",\"40\":\"F\"}",
+      "explanation": "36-C: 'perpetuate existing biases' = reproduce unfairness；37-A: 'social isolation' = feelings of loneliness；38-D: 'raises questions about job security and worker protections' = lack protection；39-E: 'pledged to achieve carbon neutrality...progress remains uneven' = commitments at different speeds；40-F: 'diverse teams produce more innovative solutions' = mixed groups generate more original ideas。",
+      "sourceExam": "CET6_2024_06",
+      "examYear": 2024,
+      "examSession": "06"
+    },
+    {
+      "questionType": "ESSAY",
+      "section": "WRITING",
+      "difficulty": 4,
+      "knowledgePoints": ["writing-structure", "academic-expression", "argument-development"],
+      "content": {
+        "stem": "For this part, you are allowed 30 minutes to write an essay on the topic: 'The Impact of Social Media on Interpersonal Communication.' You should write at least 150 words but no more than 200 words.",
+        "prompt": "The Impact of Social Media on Interpersonal Communication",
+        "minWords": 150,
+        "maxWords": 200
+      },
+      "options": null,
+      "correctAnswer": "参考范文要点：1. 社交媒体改变了人们交流的方式（引入）；2. 正面影响：打破地理限制、保持联系更便捷；3. 负面影响：面对面交流减少、浅层互动增多、误解增加（因为缺少语气和表情）；4. 结论：应合理使用，平衡线上与线下交流。",
+      "explanation": "高分作文结构：引言（背景+论点）→ 正面论述 → 负面论述 → 结论（平衡观点）。注意使用连接词（however, furthermore, in conclusion）和多样句式。",
+      "sourceExam": "CET6_2024_06",
+      "examYear": 2024,
+      "examSession": "06"
+    },
+    {
+      "questionType": "TRANSLATION",
+      "section": "TRANSLATION",
+      "difficulty": 4,
+      "knowledgePoints": ["translation-structure", "cultural-vocabulary", "chinese-to-english"],
+      "content": {
+        "stem": "Directions: For this part, you are allowed 30 minutes to translate a passage from Chinese into English.",
+        "chineseText": "中国的茶文化有着悠久的历史。茶最初被用作药物，后来逐渐成为一种日常饮品。不同地区的茶有着不同的风味和制作方法。例如，绿茶通常在采摘后立即加工，以保持其天然的颜色和味道。而红茶则经过完全发酵，具有更浓郁的口感。茶不仅是一种饮品，更是中国传统文化的重要组成部分。在中国，以茶待客是一种表达尊重和友好传统方式。如今，茶文化已经传播到世界各地，成为连接不同文化的桥梁。",
+        "keyPhrases": ["茶文化", "悠久的历史", "日常饮品", "完全发酵", "传统文化的重要组成部分", "以茶待客", "连接不同文化的桥梁"]
+      },
+      "options": null,
+      "correctAnswer": "China's tea culture has a long history. Tea was originally used as medicine and later gradually became an everyday beverage. Different regions have different flavors and methods of making tea. For example, green tea is usually processed immediately after picking to preserve its natural color and taste. Black tea, however, is fully fermented and has a richer taste. Tea is not just a beverage but an important part of traditional Chinese culture. In China, offering tea to guests is a traditional way of showing respect and friendliness. Today, tea culture has spread around the world, becoming a bridge connecting different cultures.",
+      "explanation": "翻译要点：1. '有着悠久的历史' → has a long history / boasts a time-honored history；2. '日常饮品' → an everyday beverage / a daily drink；3. '完全发酵' → fully fermented；4. '以茶待客' → serving tea to guests / offering tea to guests；5. 注意时态一致和句子衔接。",
+      "sourceExam": "CET6_2024_06",
+      "examYear": 2024,
+      "examSession": "06"
+    }
+  ]
+}

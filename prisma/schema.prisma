@@ -1,0 +1,178 @@
+// CET6备考助手 - Prisma Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════ 题库核心 ═══════════════════
+
+model Question {
+  id              String     @id @default(uuid())
+  questionType    String // LISTENING_MCQ, BANKED_CLOZE, CAREFUL_READING, INFO_MATCHING, ESSAY, TRANSLATION
+  section         String // LISTENING, READING, WRITING, TRANSLATION
+  subSection      String? // NEWS_REPORT, LONG_CONVERSATION, LECTURE...
+  difficulty      Int        @default(3) // 1-5
+  knowledgePoints String     @default("[]") // JSON array
+  content         String // JSON: question content
+  options         String? // JSON: answer options
+  correctAnswer   String // JSON: correct answer
+  explanation     String? // JSON: answer explanation
+  audioFileId     String?
+  audioFile       AudioFile? @relation(fields: [audioFileId], references: [id])
+  sourceExam      String? // CET6_2024_06
+  examYear        Int?
+  examSession     String? // "06" or "12"
+  contentHash     String? // For dedup
+  textSimilarity  String? // JSON: text similarity fingerprint
+  dataSource      String     @default("builtin") // builtin, import, scraper
+  sourceParser    String?
+  qualityStatus   String     @default("pending") // pending, validated, rejected
+  qualityIssues   String? // JSON: validation issues
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  studyRecords   StudyRecord[]
+  wrongQuestions WrongQuestion[]
+}
+
+model AudioFile {
+  id         String   @id @default(uuid())
+  filePath   String
+  fileName   String
+  audioMd5   String?
+  durationMs Int?
+  fileSize   Int?
+  format     String?
+  playable   Boolean  @default(true)
+  sourceUrl  String?
+  createdAt  DateTime @default(now())
+
+  questions Question[]
+}
+
+// ═══════════════════ 学习系统 ═══════════════════
+
+model StudyRecord {
+  id                        String    @id @default(uuid())
+  questionId                String
+  rating                    Int // 1=Again, 2=Hard, 3=Good, 4=Easy
+  responseTimeMs            Int
+  isCorrect                 Boolean
+  studiedAt                 DateTime  @default(now())
+  state                     String    @default("New") // New, Learning, Review, Relearning
+  dueDate                   DateTime?
+  stability                 Float?
+  difficultyR               Float?
+  elapsedDays               Int       @default(0)
+  scheduledDays             Int       @default(0)
+  reps                      Int       @default(0)
+  reviewed                  Boolean   @default(false)
+  reviewNotes               String?
+  knowledgePointsMiscovered String? // JSON
+
+  question Question @relation(fields: [questionId], references: [id])
+
+  @@index([questionId])
+  @@index([dueDate])
+  @@index([studiedAt])
+}
+
+model UserStats {
+  id             String    @id @default(uuid())
+  totalPoints    Int       @default(0)
+  growthValue    Float     @default(0)
+  level          Int       @default(1)
+  streakDays     Int       @default(0)
+  lastStudyAt    DateTime?
+  sectionMastery String    @default("{}") // JSON
+}
+
+model WrongQuestion {
+  id          String   @id @default(uuid())
+  questionId  String
+  wrongCount  Int      @default(1)
+  lastWrongAt DateTime @default(now())
+  mastered    Boolean  @default(false)
+  notes       String?
+
+  question Question @relation(fields: [questionId], references: [id])
+
+  @@index([questionId])
+  @@index([mastered])
+}
+
+model StudyPlan {
+  id          String   @id @default(uuid())
+  date        DateTime
+  tasks       String   @default("[]") // JSON
+  completed   Boolean  @default(false)
+  generatedAt DateTime @default(now())
+
+  @@index([date])
+}
+
+model UserSetting {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String // JSON value
+}
+
+// ═══════════════════ 爬虫系统 ═══════════════════
+
+model ScrapingTask {
+  id             String    @id @default(uuid())
+  sourceId       String
+  status         String    @default("pending") // pending, running, completed, failed, cancelled
+  totalItems     Int       @default(0)
+  completedItems Int       @default(0)
+  failedItems    Int       @default(0)
+  startedAt      DateTime?
+  completedAt    DateTime?
+  errorSummary   String? // JSON
+  createdAt      DateTime  @default(now())
+
+  failLogs      ScrapingFailLog[]
+  importResults ScrapingImportResult[]
+
+  @@index([status])
+  @@index([sourceId])
+}
+
+model ScrapingFailLog {
+  id           String   @id @default(uuid())
+  taskId       String
+  url          String
+  errorCode    String
+  errorMessage String
+  retryCount   Int      @default(0)
+  maxRetries   Int      @default(3)
+  contentHash  String?
+  failedAt     DateTime @default(now())
+  resolved     Boolean  @default(false)
+
+  task ScrapingTask @relation(fields: [taskId], references: [id])
+
+  @@index([taskId])
+  @@index([resolved])
+  @@index([errorCode])
+}
+
+model ScrapingImportResult {
+  id           String   @id @default(uuid())
+  taskId       String
+  questionId   String?
+  status       String // imported, duplicate, rejected
+  rejectReason String?
+  dedupInfo    String? // JSON
+  createdAt    DateTime @default(now())
+
+  task ScrapingTask @relation(fields: [taskId], references: [id])
+
+  @@index([taskId])
+  @@index([status])
+}
