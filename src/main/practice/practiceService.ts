@@ -32,6 +32,8 @@ export interface StartConfig {
   section?: string;
   questionType?: string;
   difficulty?: number;
+  sourceExam?: string;
+  difficultyRange?: { min: number; max: number };
   count?: number;
 }
 
@@ -67,6 +69,10 @@ export async function startSession(
   if (config.section) where.section = config.section;
   if (config.questionType) where.questionType = config.questionType;
   if (config.difficulty) where.difficulty = config.difficulty;
+  if (config.difficultyRange) {
+    where.difficulty = { gte: config.difficultyRange.min, lte: config.difficultyRange.max };
+  }
+  if (config.sourceExam) where.sourceExam = config.sourceExam;
 
   // 随机抽题
   const questions = await prisma.question.findMany({

@@ -1,7 +1,3 @@
-/**
- * 设置页面 — 主题、偏好、数据管理
- */
-
 import { useState, useEffect, useCallback } from 'react';
 import {
   Card,
@@ -25,6 +21,7 @@ import {
   DeleteOutlined,
   InfoCircleOutlined,
 } from '@ant-design/icons';
+import useThemeStore from '../stores/useThemeStore';
 
 interface UserSettings {
   theme: 'light' | 'dark' | 'system';
@@ -52,7 +49,6 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [appInfo, setAppInfo] = useState<AppInfo | null>(null);
 
-  // 加载设置
   const loadSettings = useCallback(async () => {
     setLoading(true);
     try {
@@ -65,7 +61,6 @@ export default function SettingsPage() {
     }
   }, [form]);
 
-  // 加载应用信息
   const loadAppInfo = useCallback(async () => {
     try {
       const info = await window.api.settingsAppInfo();
@@ -80,7 +75,6 @@ export default function SettingsPage() {
     loadAppInfo();
   }, [loadSettings, loadAppInfo]);
 
-  // 保存设置
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -88,6 +82,9 @@ export default function SettingsPage() {
       const success = await window.api.settingsSave(values);
       if (success) {
         message.success('设置已保存');
+        if (values.theme) {
+          useThemeStore.getState().setTheme(values.theme);
+        }
       } else {
         message.error('保存失败');
       }
@@ -98,7 +95,6 @@ export default function SettingsPage() {
     }
   };
 
-  // 导出数据
   const handleExport = async () => {
     const values = form.getFieldsValue();
     const exportPath = values.exportPath || '';
@@ -123,7 +119,6 @@ export default function SettingsPage() {
     }
   };
 
-  // 导入数据
   const handleImport = async () => {
     Modal.confirm({
       title: '确认导入',
@@ -139,7 +134,6 @@ export default function SettingsPage() {
 
         setLoading(true);
         try {
-          // 这里应该打开文件选择对话框，简化处理
           message.info('请通过命令行导入数据文件');
         } catch (error) {
           message.error('导入失败');
@@ -150,7 +144,6 @@ export default function SettingsPage() {
     });
   };
 
-  // 清除数据
   const handleClear = (type: 'studyRecords' | 'wrongQuestions' | 'all') => {
     const titles = {
       studyRecords: '学习记录',
@@ -189,7 +182,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
       <Form
         form={form}
         layout="vertical"
@@ -204,7 +197,6 @@ export default function SettingsPage() {
           exportPath: '',
         }}
       >
-        {/* 显示设置 */}
         <Card title="显示设置" style={{ marginBottom: 16 }}>
           <Form.Item label="主题" name="theme">
             <Select style={{ width: 200 }}>
@@ -219,7 +211,6 @@ export default function SettingsPage() {
           </Form.Item>
         </Card>
 
-        {/* 练习设置 */}
         <Card title="练习设置" style={{ marginBottom: 16 }}>
           <Form.Item label="自动播放音频" name="autoPlayAudio" valuePropName="checked">
             <Switch />
@@ -242,7 +233,6 @@ export default function SettingsPage() {
           </Form.Item>
         </Card>
 
-        {/* 数据管理 */}
         <Card title="数据管理" style={{ marginBottom: 16 }}>
           <Form.Item label="导出/导入路径" name="exportPath">
             <input type="text" placeholder="选择文件夹路径" style={{ width: '100%' }} />
@@ -284,7 +274,6 @@ export default function SettingsPage() {
           </Space>
         </Card>
 
-        {/* 保存按钮 */}
         <Button
           type="primary"
           icon={<SaveOutlined />}
@@ -296,7 +285,6 @@ export default function SettingsPage() {
         </Button>
       </Form>
 
-      {/* 应用信息 */}
       {appInfo && (
         <Card title="应用信息" style={{ marginTop: 16 }}>
           <Descriptions column={2}>

@@ -31,6 +31,7 @@ interface SeedFile {
 export async function seedDatabase(prisma: PrismaClient): Promise<{ imported: number; skipped: number }> {
   const seedFiles = [
     'resources/builtin-exams/2024-06-sample.json',
+    'resources/builtin-exams/2023-12-sample.json',
   ];
 
   let imported = 0;

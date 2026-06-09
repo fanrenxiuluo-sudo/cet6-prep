@@ -1,7 +1,7 @@
 {
   "name": "cet6-prep",
   "productName": "CET6备考助手",
-  "version": "2.0.0",
+"version": "3.0.0",
   "description": "英语六级备考助手 - 练习、错题本、统计、成就系统",
   "main": ".vite/build/main.js",
   "private": true,
@@ -47,6 +47,7 @@
     "@vitejs/plugin-react": "^4.7.0",
     "antd": "^6.4.3",
     "crypto-js": "^4.2.0",
+    "dayjs": "^1.11.13",
     "dotenv": "^17.4.2",
     "echarts": "^6.1.0",
     "echarts-for-react": "^3.0.6",

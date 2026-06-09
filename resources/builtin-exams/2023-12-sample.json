@@ -1,0 +1,207 @@
+{
+  "version": 1,
+  "examLabel": "CET6 2023\u5E7412\u6708\u771F\u9898",
+  "questions": [
+    {
+      "questionType": "LISTENING_MCQ",
+      "section": "LISTENING",
+      "subSection": "NEWS_REPORT",
+      "difficulty": 2,
+      "knowledgePoints": ["listening-main-idea", "news-vocabulary"],
+      "content": {
+        "stem": "What is the news report mainly about?",
+        "passage": "Scientists have discovered a new species of deep-sea fish in the Mariana Trench, the deepest part of the world's oceans. The fish, which has been named Pseudoliparis swirei, was found at a depth of 8,178 meters. Researchers say the discovery challenges previous assumptions about the limits of vertebrate life in extreme environments. The fish has evolved unique adaptations, including a flexible skull and reduced mineralization of bones, which allow it to withstand the enormous pressure at such depths.",
+        "questionText": "What makes the newly discovered fish special according to the news report?"
+      },
+      "options": [
+        { "label": "A", "text": "It is the largest fish ever found in the deep sea" },
+        { "label": "B", "text": "It was found at a record depth and has unique adaptations" },
+        { "label": "C", "text": "It can survive without water for extended periods" },
+        { "label": "D", "text": "It is the oldest living species on Earth" }
+      ],
+      "correctAnswer": "B",
+      "explanation": "\u65B0\u95FB\u6307\u51FA\u8FD9\u79CD\u9C7C\u5728\u521B\u7EAA\u5F55\u7684\u6DF1\u5EA6\u88AB\u53D1\u73B0\uFF0C\u5E76\u4E14\u5177\u6709\u72EC\u7279\u7684\u9002\u5E94\u6027\uFF08\u7075\u6D3B\u7684\u5934\u9AA8\u548C\u51CF\u5C11\u7684\u9AA8\u9ABC\u77FF\u5316\uFF09\u3002A\u9519\u8BEF\uFF08\u4E0D\u662F\u6700\u5927\uFF09\uFF0CC\u9519\u8BEF\uFF08\u4E0D\u80FD\u79BB\u5F00\u6C34\uFF09\uFF0CD\u9519\u8BEF\uFF08\u4E0D\u662F\u6700\u53E4\u8001\uFF09\u3002",
+      "sourceExam": "CET6_2023_12",
+      "examYear": 2023,
+      "examSession": "12"
+    },
+    {
+      "questionType": "LISTENING_MCQ",
+      "section": "LISTENING",
+      "subSection": "LONG_CONVERSATION",
+      "difficulty": 3,
+      "knowledgePoints": ["listening-conversation", "daily-life-vocabulary"],
+      "content": {
+        "stem": "What does the woman say about the new company policy?",
+        "passage": "M: Did you hear about the new company policy regarding remote work?\nW: Yes, I did. Starting next month, employees will have the option to work from home up to three days a week. But there's a catch \u2014 we need to be available during core hours from 10 AM to 3 PM for meetings and collaboration. Also, team leaders must approve the remote work schedule in advance.\nM: That sounds reasonable. I think three days is a good balance between office and home.\nW: I agree. Though I'm a bit concerned about the core hours requirement. Sometimes I like to start work early in the morning.",
+        "questionText": "What is a requirement of the new remote work policy?"
+      },
+      "options": [
+        { "label": "A", "text": "Employees must work from home five days a week" },
+        { "label": "B", "text": "Employees must be available during core hours and get team leader approval" },
+        { "label": "C", "text": "Only senior employees can work remotely" },
+        { "label": "D", "text": "Remote work is only allowed on weekends" }
+      ],
+      "correctAnswer": "B",
+      "explanation": "\u5973\u58EB\u660E\u786E\u63D0\u5230\u4E24\u4E2A\u8981\u6C42\uFF1A\u6838\u5FC3\u65F6\u95F4\uFF0810AM-3PM\uFF09\u5FC5\u987B\u5728\u7EBF\uFF0C\u4EE5\u53CA\u56E2\u961F\u9886\u5BFC\u5FC5\u987B\u63D0\u524D\u5BA1\u6279\u3002A\u9519\u8BEF\uFF08\u4E0D\u662F5\u5929\uFF09\uFF0CC\u9519\u8BEF\uFF08\u4E0D\u662F\u53EA\u6709\u9AD8\u7EA7\u5458\u5DE5\uFF09\uFF0CD\u9519\u8BEF\uFF08\u4E0D\u662F\u5468\u672B\uFF09\u3002",
+      "sourceExam": "CET6_2023_12",
+      "examYear": 2023,
+      "examSession": "12"
+    },
+    {
+      "questionType": "BANKED_CLOZE",
+      "section": "READING",
+      "difficulty": 3,
+      "knowledgePoints": ["vocabulary-context", "grammar", "collocation"],
+      "content": {
+        "stem": "Fill in the blanks with the appropriate words from the word bank.",
+        "passageWithBlanks": "The rise of social media has {1} changed the way people communicate and access information. While it has brought people closer together across vast distances, it has also raised serious {2} about privacy and mental health. Studies have shown that excessive social media use can {3} to anxiety and depression, particularly among young people. Moreover, the spread of {4} information on these platforms has become a major challenge for society. Despite these concerns, many experts believe that social media, when used {5}, can be a powerful tool for education and social change.",
+        "wordBank": ["fundamentally", "concerns", "lead", "misleading", "responsibly", "gradually", "benefits", "result", "accurate", "carelessly"],
+        "blanks": [1, 2, 3, 4, 5]
+      },
+      "options": null,
+      "correctAnswer": "{\"1\":\"fundamentally\",\"2\":\"concerns\",\"3\":\"lead\",\"4\":\"misleading\",\"5\":\"responsibly\"}",
+      "explanation": "1. fundamentally\uFF08\u6839\u672C\u4E0A\uFF09\u2014\u793E\u4EA4\u5A92\u4F53\u6839\u672C\u6027\u5730\u6539\u53D8\u4E86\u4EA4\u6D41\u65B9\u5F0F\uFF1B2. concerns\uFF08\u62C5\u5FE7\uFF09\u2014\u5F15\u53D1\u4E86\u4E25\u91CD\u7684\u62C5\u5FE7\uFF1B3. lead\uFF08\u5BFC\u81F4\uFF09\u2014lead to\u56FA\u5B9A\u642D\u914D\uFF1B4. misleading\uFF08\u8BEF\u5BFC\u6027\u7684\uFF09\u2014\u8BEF\u5BFC\u6027\u4FE1\u606F\u7684\u4F20\u64AD\uFF1B5. responsibly\uFF08\u8D1F\u8D23\u4EFB\u5730\uFF09\u2014\u8D1F\u8D23\u4EFB\u5730\u4F7F\u7528\u53EF\u4EE5\u6210\u4E3A\u5F3A\u5927\u5DE5\u5177\u3002",
+      "sourceExam": "CET6_2023_12",
+      "examYear": 2023,
+      "examSession": "12"
+    },
+    {
+      "questionType": "CAREFUL_READING",
+      "section": "READING",
+      "difficulty": 4,
+      "knowledgePoints": ["reading-main-idea", "inference", "critical-thinking"],
+      "content": {
+        "stem": "According to the passage, what can be concluded about the impact of artificial intelligence on employment?",
+        "passage": "The debate over artificial intelligence and its impact on employment has intensified in recent years. A comprehensive study by the World Economic Forum predicts that while AI and automation may displace approximately 85 million jobs by 2025, they will also create around 97 million new positions. However, the transition is unlikely to be smooth. The new jobs typically require different skill sets \u2014 often involving creativity, critical thinking, and technological literacy \u2014 which many displaced workers may not possess. This creates what economists call a 'skills mismatch,' where available workers and available jobs don't align. Furthermore, the impact is uneven across demographics: older workers and those with lower education levels face the greatest risk of job displacement, while younger, tech-savvy workers are more likely to benefit from the new opportunities. Some policy experts argue that without significant investment in retraining programs, AI could exacerbate existing socioeconomic inequalities rather than reduce them.",
+        "questionText": "What does the passage suggest about the relationship between AI and job creation?"
+      },
+      "options": [
+        { "label": "A", "text": "AI will destroy more jobs than it creates" },
+        { "label": "B", "text": "AI will create more jobs than it destroys, but the transition involves a skills mismatch problem" },
+        { "label": "C", "text": "AI will benefit all workers equally regardless of their education level" },
+        { "label": "D", "text": "AI will have no significant impact on employment overall" }
+      ],
+      "correctAnswer": "B",
+      "explanation": "\u6587\u7AE0\u6307\u51FA AI \u5C06\u521B\u9020\u66F4\u591A\u5C97\u4F4D\uFF0897M vs 85M\uFF09\uFF0C\u4F46\u5B58\u5728\u201C\u6280\u80FD\u4E0D\u5339\u914D\u201D\u95EE\u9898\uFF0C\u5373\u65B0\u5C97\u4F4D\u9700\u8981\u4E0D\u540C\u7684\u6280\u80FD\u3002A\u9519\u8BEF\uFF08\u6587\u7AE0\u8BF4\u521B\u9020\u66F4\u591A\uFF09\uFF0CC\u9519\u8BEF\uFF08\u5F71\u54CD\u4E0D\u5747\u7B49\uFF09\uFF0CD\u9519\u8BEF\uFF08\u5F71\u54CD\u5F88\u5927\uFF09\u3002",
+      "sourceExam": "CET6_2023_12",
+      "examYear": 2023,
+      "examSession": "12"
+    },
+    {
+      "questionType": "INFO_MATCHING",
+      "section": "READING",
+      "difficulty": 3,
+      "knowledgePoints": ["reading-matching", "paraphrase-recognition", "detail-comprehension"],
+      "content": {
+        "stem": "Match each statement (36-40) with the correct paragraph (A-F). Note: there are more paragraphs than statements.",
+        "passage": "A. The rapid development of quantum computing has opened new possibilities in cryptography and drug discovery. Major tech companies are investing billions in quantum research, though practical applications remain years away.\n\nB. Traditional Chinese medicine has gained increasing recognition in Western countries. Many hospitals now offer acupuncture as a complementary treatment, and research into herbal remedies has accelerated.\n\nC. E-sports has evolved from a niche hobby into a billion-dollar industry. Professional gamers now enjoy celebrity status, with tournaments filling stadiums and streaming audiences reaching millions.\n\nD. Climate change is forcing coastal cities to adapt. Venice has installed a series of mobile barriers to protect against flooding, while Jakarta is planning to relocate its capital city entirely.\n\nE. The sharing economy has transformed how people think about ownership. Car-sharing services and co-working spaces are just two examples of how technology is reshaping our relationship with possessions.\n\nF. Advances in gene therapy have given hope to patients with previously untreatable conditions. The recent approval of several gene therapy treatments marks a turning point in medicine.",
+        "questionText": "36. Some cities are taking drastic measures to address environmental challenges.\n37. A form of entertainment has become a major industry with professional competitors.\n38. Medical treatments from Eastern cultures are becoming more accepted in Western hospitals.\n39. A new technology shows promise but is not yet ready for widespread practical use.\n40. A medical breakthrough offers hope for conditions that were previously incurable."
+      },
+      "options": null,
+      "correctAnswer": "{\"36\":\"D\",\"37\":\"C\",\"38\":\"B\",\"39\":\"A\",\"40\":\"F\"}",
+      "explanation": "36-D\uFF1A\u6CBF\u6D77\u57CE\u5E02\u91C7\u53D6\u6781\u7AEF\u63AA\u65BD\uFF08\u5A01\u5C3C\u65AF\u88C5\u95EF\u95E8\uFF0C\u96C5\u52A0\u8FBE\u8FC1\u90FD\uFF09\uFF1B37-C\uFF1A\u7535\u7ADE\u5DF2\u6210\u4E3A\u4EA7\u4E1A\uFF1B38-B\uFF1A\u4E2D\u533B\u5728\u897F\u65B9\u533B\u9662\u83B7\u5F97\u8BA4\u53EF\uFF1B39-A\uFF1A\u91CF\u5B50\u8BA1\u7B97\u6709\u524D\u666F\u4F46\u5B9E\u9645\u5E94\u7528\u8FD8\u9700\u8981\u591A\u5E74\uFF1B40-F\uFF1A\u57FA\u56E0\u6CBB\u7597\u7ED9\u4E0D\u53EF\u6CBB\u7597\u7684\u75BE\u75C5\u5E26\u6765\u5E0C\u671B\u3002",
+      "sourceExam": "CET6_2023_12",
+      "examYear": 2023,
+      "examSession": "12"
+    },
+    {
+      "questionType": "ESSAY",
+      "section": "WRITING",
+      "difficulty": 3,
+      "knowledgePoints": ["writing-argument", "transition-words", "paragraph-structure"],
+      "content": {
+        "stem": "For this part, you are allowed 30 minutes to write an essay on the topic: 'Should College Students Be Required to Take Physical Education Classes?' You should write at least 150 words but no more than 200 words.",
+        "prompt": "Should College Students Be Required to Take Physical Education Classes?",
+        "minWords": 150,
+        "maxWords": 200
+      },
+      "options": null,
+      "correctAnswer": "\u53C2\u8003\u8303\u6587\u8981\u70B9\uFF1A1. \u5927\u5B66\u751F\u4F53\u80B2\u8BFE\u7684\u5FC5\u8981\u6027\uFF08\u5F15\u5165\uFF09\uFF1B2. \u652F\u6301\u89C2\u70B9\uFF1A\u4F53\u80B2\u8BFE\u6709\u52A9\u4E8E\u8EAB\u4F53\u5065\u5EB7\u548C\u538B\u529B\u7F13\u89E3\uFF1B3. \u53CD\u5BF9\u89C2\u70B9\uFF1A\u5927\u5B66\u751F\u5E94\u81EA\u4E3B\u9009\u62E9\uFF1B4. \u7ED3\u8BBA\uFF1A\u5EFA\u8BAE\u4FDD\u7559\u4F46\u589E\u52A0\u7075\u6D3B\u6027\u3002",
+      "explanation": "\u9AD8\u5206\u4F5C\u6587\u7ED3\u6784\uFF1A\u5F15\u8A00\uFF08\u80CC\u666F+\u8BBA\u70B9\uFF09\u2192 \u6B63\u9762\u8BBA\u8FF0 \u2192 \u53CD\u9762\u8BBA\u8FF0 \u2192 \u7ED3\u8BBA\u3002\u6CE8\u610F\u4F7F\u7528\u8FDE\u63A5\u8BCD\u548C\u591A\u6837\u53E5\u5F0F\u3002",
+      "sourceExam": "CET6_2023_12",
+      "examYear": 2023,
+      "examSession": "12"
+    },
+    {
+      "questionType": "TRANSLATION",
+      "section": "TRANSLATION",
+      "difficulty": 3,
+      "knowledgePoints": ["translation-structure", "cultural-vocabulary", "chinese-to-english"],
+      "content": {
+        "stem": "Directions: For this part, you are allowed 30 minutes to translate a passage from Chinese into English.",
+        "chineseText": "\u968F\u7740\u4E2D\u56FD\u7ECF\u6D4E\u7684\u5FEB\u901F\u53D1\u5C55\uFF0C\u8D8A\u6765\u8D8A\u591A\u7684\u5916\u56FD\u4EBA\u5F00\u59CB\u5B66\u4E60\u4E2D\u6587\u3002\u4E2D\u6587\u88AB\u8BA4\u4E3A\u662F\u4E16\u754C\u4E0A\u6700\u96BE\u5B66\u7684\u8BED\u8A00\u4E4B\u4E00\uFF0C\u56E0\u4E3A\u5B83\u4E0D\u4EC5\u6709\u590D\u6742\u7684\u4E66\u5199\u7CFB\u7EDF\uFF0C\u8FD8\u6709\u56DB\u4E2A\u58F0\u8C03\u3002\u7136\u800C\uFF0C\u6C49\u5B57\u7684\u7F8E\u611F\u548C\u4E2D\u6587\u80CC\u540E\u4E30\u5BCC\u7684\u6587\u5316\u5185\u6DB5\u4F7F\u5F97\u5F88\u591A\u5B66\u4E60\u8005\u4E50\u6B64\u4E0D\u7B2E\u3002\u636E\u7EDF\u8BA1\uFF0C\u5168\u7403\u5B66\u4E60\u4E2D\u6587\u7684\u4EBA\u6570\u5DF2\u8D85\u8FC7\u4E24\u4EBF\u3002",
+        "keyPhrases": ["\u5FEB\u901F\u53D1\u5C55", "\u4E66\u5199\u7CFB\u7EDF", "\u56DB\u4E2A\u58F0\u8C03", "\u7F8E\u611F", "\u6587\u5316\u5185\u6DB5", "\u4E50\u6B64\u4E0D\u7B2E", "\u636E\u7EDF\u8BA1"]
+      },
+      "options": null,
+      "correctAnswer": "With the rapid development of China's economy, more and more foreigners are beginning to learn Chinese. Chinese is considered one of the most difficult languages in the world to learn, as it has not only a complex writing system but also four tones. However, the beauty of Chinese characters and the rich cultural significance behind the language make many learners persistent. According to statistics, the number of people learning Chinese worldwide has exceeded 200 million.",
+      "explanation": "\u7FFB\u8BD1\u8981\u70B9\uFF1A1. '\u968F\u7740...\u7684\u53D1\u5C55' \u2192 With the development of.../As... develops\uFF1B2. '\u4E66\u5199\u7CFB\u7EDF' \u2192 writing system\uFF1B3. '\u56DB\u4E2A\u58F0\u8C03' \u2192 four tones\uFF1B4. '\u4E50\u6B64\u4E0D\u7B2E' \u2192 persist/keep going\uFF1B5. '\u636E\u7EDF\u8BA1' \u2192 According to statistics\u3002",
+      "sourceExam": "CET6_2023_12",
+      "examYear": 2023,
+      "examSession": "12"
+    },
+    {
+      "questionType": "LISTENING_MCQ",
+      "section": "LISTENING",
+      "subSection": "NEWS_REPORT",
+      "difficulty": 1,
+      "knowledgePoints": ["listening-basic", "vocabulary"],
+      "content": {
+        "stem": "What happened according to the news report?",
+        "passage": "A local library in downtown Shanghai has reopened after a year-long renovation. The library, which first opened in 1995, now features a modern reading area, a children's section, and free Wi-Fi throughout the building. City officials say the renovation cost about 5 million yuan and was completed ahead of schedule. The library will be open from 9 AM to 9 PM every day except Mondays.",
+        "questionText": "What is the main purpose of this news report?"
+      },
+      "options": [
+        { "label": "A", "text": "To announce the reopening of a renovated library" },
+        { "label": "B", "text": "To criticize the cost of the renovation project" },
+        { "label": "C", "text": "To encourage people to donate books" },
+        { "label": "D", "text": "To compare libraries in different cities" }
+      ],
+      "correctAnswer": "A",
+      "explanation": "\u65B0\u95FB\u660E\u786E\u62A5\u9053\u4E86\u56FE\u4E66\u9986\u91CD\u65B0\u5F00\u653E\u7684\u6D88\u606F\u3002B\u9519\u8BEF\uFF08\u4E0D\u662F\u6279\u8BC4\u8D39\u7528\uFF09\uFF0CC\u9519\u8BEF\uFF08\u4E0D\u662F\u6350\u4E66\uFF09\uFF0CD\u9519\u8BEF\uFF08\u4E0D\u662F\u6BD4\u8F83\uFF09\u3002",
+      "sourceExam": "CET6_2023_12",
+      "examYear": 2023,
+      "examSession": "12"
+    },
+    {
+      "questionType": "CAREFUL_READING",
+      "section": "READING",
+      "difficulty": 1,
+      "knowledgePoints": ["reading-basic", "detail-comprehension"],
+      "content": {
+        "stem": "According to the passage, which of the following is true about online learning?",
+        "passage": "Online learning has become increasingly popular in recent years. According to a recent study, over 60% of college students in China have taken at least one online course. The advantages of online learning include flexibility in scheduling, access to a wide range of courses, and the ability to learn at one's own pace. However, online learning also has its challenges. Some students find it difficult to stay motivated without face-to-face interaction with teachers and classmates. In addition, technical problems such as slow internet connections can disrupt the learning experience.",
+        "questionText": "Which of the following is mentioned as a challenge of online learning?"
+      },
+      "options": [
+        { "label": "A", "text": "Online courses are too expensive for most students" },
+        { "label": "B", "text": "Some students find it hard to stay motivated without in-person interaction" },
+        { "label": "C", "text": "Online courses have fewer subjects than traditional classes" },
+        { "label": "D", "text": "Teachers are not qualified to teach online courses" }
+      ],
+      "correctAnswer": "B",
+      "explanation": "\u6587\u7AE0\u660E\u786E\u6307\u51FA\u6709\u4E9B\u5B66\u751F\u89C9\u5F97\u6CA1\u6709\u9762\u5BF9\u9762\u4EA4\u6D41\u5F88\u96BE\u4FDD\u6301\u52A8\u529B\u3002A\u9519\u8BEF\uFF08\u8D39\u7528\u672A\u63D0\uFF09\uFF0CC\u9519\u8BEF\uFF08\u7EBF\u4E0A\u8BFE\u7A0B\u79CD\u7C7B\u66F4\u591A\uFF09\uFF0CD\u9519\u8BEF\uFF08\u6559\u5E08\u8D44\u8D28\u672A\u63D0\uFF09\u3002",
+      "sourceExam": "CET6_2023_12",
+      "examYear": 2023,
+      "examSession": "12"
+    },
+    {
+      "questionType": "BANKED_CLOZE",
+      "section": "READING",
+      "difficulty": 1,
+      "knowledgePoints": ["vocabulary-basic", "context-clues"],
+      "content": {
+        "stem": "Fill in the blanks with the appropriate words from the word bank.",
+        "passageWithBlanks": "Learning a new language can be both {1} and challenging. Many people find that regular {2} is the key to success. It's important to {3} every day, even if just for a short time. Reading books and watching movies in the target language can help you {4} new vocabulary naturally. With enough {5}, you will see improvement over time.",
+        "wordBank": ["rewarding", "practice", "study", "acquire", "effort", "boring", "exercise", "forget", "maintain", "patience"],
+        "blanks": [1, 2, 3, 4, 5]
+      },
+      "options": null,
+      "correctAnswer": "{\"1\":\"rewarding\",\"2\":\"practice\",\"3\":\"study\",\"4\":\"acquire\",\"5\":\"effort\"}",
+      "explanation": "1. rewarding\uFF08\u6709\u56DE\u62A5\u7684\uFF09\u2014\u5B66\u8BED\u8A00\u65E2\u6709\u56DE\u62A5\u53C8\u6709\u6311\u6218\uFF1B2. practice\uFF08\u7EC3\u4E60\uFF09\u2014\u7EC3\u4E60\u662F\u5173\u952E\uFF1B3. study\uFF08\u5B66\u4E60\uFF09\u2014\u6BCF\u5929\u5B66\u4E60\uFF1B4. acquire\uFF08\u83B7\u5F97\uFF09\u2014\u81EA\u7136\u83B7\u5F97\u8BCD\u6C47\uFF1B5. effort\uFF08\u52AA\u529B\uFF09\u2014\u8DB3\u591F\u7684\u52AA\u529B\u80FD\u770B\u5230\u8FDB\u6B65\u3002",
+      "sourceExam": "CET6_2023_12",
+      "examYear": 2023,
+      "examSession": "12"
+    }
+  ]
+}
