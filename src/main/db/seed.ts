@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { app } from 'electron';
 
 interface SeedQuestion {
   questionType: string;
@@ -36,7 +37,9 @@ export async function seedDatabase(prisma: PrismaClient): Promise<{ imported: nu
   let skipped = 0;
 
   for (const relativePath of seedFiles) {
-    const filePath = path.resolve(relativePath);
+    // 使用 app.getAppPath() 确保打包后路径正确
+    // app.getAppPath() 在开发时返回项目根目录，打包后返回 app.asar 根目录
+    const filePath = path.join(app.getAppPath(), relativePath);
     let rawData: string;
     try {
       rawData = readFileSync(filePath, 'utf-8');

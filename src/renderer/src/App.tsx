@@ -10,6 +10,7 @@ import {
   TrophyOutlined,
   FileSearchOutlined,
   CloudDownloadOutlined,
+  StarOutlined,
 } from '@ant-design/icons';
 import zhCN from 'antd/locale/zh_CN';
 import type { MenuProps } from 'antd';

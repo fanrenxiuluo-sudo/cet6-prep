@@ -4,7 +4,7 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  root: 'src/renderer',
+  // 注意：不要在此设置 root，由 Electron Forge Vite 插件自动设置
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src/renderer/src'),
