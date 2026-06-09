@@ -47,6 +47,9 @@ const config: ForgeConfig = {
   },
   rebuildConfig: {},
   makers: [
+    new MakerSquirrel({
+      name: 'CET6Prep',
+    }),
     new MakerZIP({}, ['win32']),
   ],
   hooks: {
