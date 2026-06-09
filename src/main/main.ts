@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import log from 'electron-log';
@@ -24,6 +24,9 @@ declare module 'electron' {
 let mainWindow: BrowserWindow | null = null;
 
 const createWindow = () => {
+  // 隐藏默认菜单栏
+  Menu.setApplicationMenu(null);
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,

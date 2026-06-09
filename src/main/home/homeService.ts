@@ -51,11 +51,10 @@ export async function getTodayTasks(
   const todayEnd = new Date(now);
   todayEnd.setDate(todayEnd.getDate() + 1);
 
-  // 1. 待复习错题
+  // 1. 待复习错题（未掌握的）
   const dueWrong = await prisma.wrongQuestion.count({
     where: {
       mastered: false,
-      due: { lte: now },
     },
   });
 
@@ -197,11 +196,10 @@ export async function getQuickStats(
     where: { isCorrect: true },
   });
 
-  // 待复习错题
+  // 待复习错题（未掌握的）
   const dueForReview = await prisma.wrongQuestion.count({
     where: {
       mastered: false,
-      due: { lte: now },
     },
   });
 
