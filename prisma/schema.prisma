@@ -93,17 +93,25 @@ model UserStats {
 }
 
 model WrongQuestion {
-  id          String   @id @default(uuid())
-  questionId  String
-  wrongCount  Int      @default(1)
-  lastWrongAt DateTime @default(now())
-  mastered    Boolean  @default(false)
-  notes       String?
+  id            String   @id @default(uuid())
+  questionId    String
+  wrongCount    Int      @default(1)
+  lastWrongAt   DateTime @default(now())
+  mastered      Boolean  @default(false)
+  notes         String?
+  stability     Float    @default(0.4)
+  difficulty    Float    @default(5)
+  elapsedDays   Int      @default(0)
+  scheduledDays Int      @default(0)
+  reps          Int      @default(0)
+  state         String   @default("New")
+  due           DateTime @default(now())
 
   question Question @relation(fields: [questionId], references: [id])
 
   @@index([questionId])
   @@index([mastered])
+  @@index([due])
 }
 
 model StudyPlan {

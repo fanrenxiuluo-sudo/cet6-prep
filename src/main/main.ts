@@ -15,13 +15,8 @@ if (started) {
 log.transports.file.level = 'info';
 log.info('Application starting...');
 
-declare module 'electron' {
-  interface App {
-    isQuitting: boolean;
-  }
-}
-
 let mainWindow: BrowserWindow | null = null;
+let isQuitting = false;
 
 const createWindow = () => {
   // 隐藏默认菜单栏
@@ -34,7 +29,7 @@ const createWindow = () => {
     minHeight: 600,
     title: 'CET6备考助手',
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'index.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
@@ -50,7 +45,7 @@ const createWindow = () => {
 
   // Close to tray instead of quitting
   mainWindow.on('close', (event) => {
-    if (!app.isQuitting) {
+    if (!isQuitting) {
       event.preventDefault();
       mainWindow?.hide();
     }
@@ -92,7 +87,7 @@ app.on('activate', () => {
 });
 
 app.on('before-quit', async () => {
-  app.isQuitting = true;
+  isQuitting = true;
   await closeDatabase();
   log.info('Application quitting');
 });

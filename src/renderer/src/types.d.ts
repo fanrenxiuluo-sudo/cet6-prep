@@ -4,7 +4,7 @@ interface CET6API {
   // Home
   homeData: () => Promise<{
     tasks: Array<{
-      type: 'practice' | 'review' | 'wrongbook';
+      type: 'practice' | 'review' | 'wrongbook' | 'import';
       title: string;
       description: string;
       count: number;
@@ -28,7 +28,7 @@ interface CET6API {
     }>;
   }>;
   homeTasks: () => Promise<Array<{
-    type: 'practice' | 'review' | 'wrongbook';
+    type: 'practice' | 'review' | 'wrongbook' | 'import';
     title: string;
     description: string;
     count: number;

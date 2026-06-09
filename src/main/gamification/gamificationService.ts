@@ -259,7 +259,6 @@ export async function getUserProfile(
   // 统计练习过的题型
   const practicedSections = await prisma.studyRecord.groupBy({
     by: ['questionId'],
-    select: { questionId: true },
   });
   const sectionIds = practicedSections.map(s => s.questionId);
   const sections = await prisma.question.findMany({

@@ -56,10 +56,11 @@ export async function seedDatabase(prisma: PrismaClient): Promise<{ imported: nu
       const knowledgeJson = JSON.stringify(q.knowledgePoints);
 
       // 简单 contentHash：基于题干+选项+答案
+      const hashStem = String(
+        q.content.stem ?? q.content.chineseText ?? q.content.passageWithBlanks ?? ''
+      );
       const contentHash = await computeHash(
-        q.content.stem || q.content.chineseText || q.content.passageWithBlanks || '' +
-        (optionsJson || '') +
-        q.correctAnswer
+        hashStem + (optionsJson || '') + q.correctAnswer
       );
 
       // 幂等检查：同一 sourceExam + contentHash 不重复插入

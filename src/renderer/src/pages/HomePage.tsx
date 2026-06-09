@@ -9,10 +9,10 @@ import {
   TrophyOutlined,
   FireOutlined,
   CheckCircleOutlined,
+  CloseCircleOutlined,
   ClockCircleOutlined,
   AlertOutlined,
   RightOutlined,
-  StarOutlined,
   ImportOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -22,7 +22,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
 interface TodayTask {
-  type: 'practice' | 'review' | 'wrongbook';
+  type: 'practice' | 'review' | 'wrongbook' | 'import';
   title: string;
   description: string;
   count: number;

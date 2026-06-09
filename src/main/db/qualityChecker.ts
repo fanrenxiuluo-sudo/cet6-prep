@@ -18,6 +18,12 @@ export interface QualityCheckResult {
 }
 
 type Validator = (q: RawQuestion) => QualityIssue | null;
+type QuestionContent = {
+  stem?: unknown;
+  passageWithBlanks?: unknown;
+  chineseText?: unknown;
+  prompt?: unknown;
+};
 
 export interface RawQuestion {
   questionType: string;
@@ -36,7 +42,7 @@ export interface RawQuestion {
 const RULES: Validator[] = [
   // 1. 题干不能为空
   (q) => {
-    const content = safeParse(q.content);
+    const content = safeParse<QuestionContent>(q.content);
     const hasStem = content?.stem || content?.passageWithBlanks || content?.chineseText || content?.prompt;
     if (!hasStem || String(hasStem).trim().length === 0) {
       return { field: 'content', severity: 'error', code: 'EMPTY_STEM', message: '题干内容不能为空' };
@@ -50,7 +56,7 @@ const RULES: Validator[] = [
     if (!q.options) {
       return { field: 'options', severity: 'error', code: 'OPTIONS_MISSING', message: '选择题必须提供选项' };
     }
-    const opts = safeParse(q.options);
+    const opts = safeParse<unknown>(q.options);
     if (!Array.isArray(opts) || opts.length !== 4) {
       return { field: 'options', severity: 'error', code: 'OPTIONS_COUNT_MISMATCH', message: `选择题需要4个选项，实际 ${Array.isArray(opts) ? opts.length : 0} 个` };
     }
@@ -116,7 +122,7 @@ const RULES: Validator[] = [
     if (!q.knowledgePoints) {
       return { field: 'knowledgePoints', severity: 'warning', code: 'MISSING_TAGS', message: '缺少知识点标签' };
     }
-    const tags = safeParse(q.knowledgePoints);
+    const tags = safeParse<unknown>(q.knowledgePoints);
     if (!Array.isArray(tags) || tags.length === 0) {
       return { field: 'knowledgePoints', severity: 'warning', code: 'EMPTY_TAGS', message: '知识点标签为空数组' };
     }
@@ -169,9 +175,9 @@ export function validateBatch(questions: RawQuestion[]): {
 
 // ═══════════════════ 工具函数 ═══════════════════
 
-function safeParse(json: string): unknown {
+function safeParse<T>(json: string): T | null {
   try {
-    return JSON.parse(json);
+    return JSON.parse(json) as T;
   } catch {
     return null;
   }

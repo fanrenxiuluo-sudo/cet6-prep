@@ -34,6 +34,21 @@ export interface ScrapingTask {
   errorSummary?: string;
 }
 
+type ScrapingTaskStatus = ScrapingTask['status'];
+
+function toScrapingTaskStatus(status: string): ScrapingTaskStatus {
+  if (
+    status === 'pending' ||
+    status === 'running' ||
+    status === 'completed' ||
+    status === 'failed' ||
+    status === 'cancelled'
+  ) {
+    return status;
+  }
+  return 'failed';
+}
+
 export interface ScrapingResult {
   taskId: string;
   imported: number;
@@ -241,7 +256,7 @@ export async function getTasks(
   return tasks.map(t => ({
     id: t.id,
     sourceId: t.sourceId,
-    status: t.status,
+    status: toScrapingTaskStatus(t.status),
     totalItems: t.totalItems,
     completedItems: t.completedItems,
     failedItems: t.failedItems,
@@ -273,7 +288,7 @@ export async function getTaskDetail(
   return {
     id: task.id,
     sourceId: task.sourceId,
-    status: task.status,
+    status: toScrapingTaskStatus(task.status),
     totalItems: task.totalItems,
     completedItems: task.completedItems,
     failedItems: task.failedItems,

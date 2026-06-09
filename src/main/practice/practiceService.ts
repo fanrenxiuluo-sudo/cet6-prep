@@ -6,6 +6,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
+import { addWrongQuestion } from '../review/wrongBookService';
 
 // ═══════════════════ 类型 ═══════════════════
 
@@ -197,26 +198,7 @@ export async function completeSession(
   // 更新错题本
   const wrongResults = session.results.filter(r => !r.isCorrect);
   for (const wrong of wrongResults) {
-    const existing = await prisma.wrongQuestion.findFirst({
-      where: { questionId: wrong.questionId },
-    });
-
-    if (existing) {
-      await prisma.wrongQuestion.update({
-        where: { id: existing.id },
-        data: {
-          wrongCount: existing.wrongCount + 1,
-          lastWrongAt: new Date(),
-        },
-      });
-    } else {
-      await prisma.wrongQuestion.create({
-        data: {
-          questionId: wrong.questionId,
-          wrongCount: 1,
-        },
-      });
-    }
+    await addWrongQuestion(prisma, wrong.questionId);
   }
 
   const summary: SessionSummary = {

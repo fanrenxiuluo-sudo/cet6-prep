@@ -115,6 +115,8 @@ interface ReviewPageProps {
   defaultTab?: 'history' | 'wrongbook' | 'stats';
 }
 
+type ReviewTab = NonNullable<ReviewPageProps['defaultTab']>;
+
 export default function ReviewPage({ defaultTab = 'history' }: ReviewPageProps) {
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [loading, setLoading] = useState(false);
@@ -135,6 +137,7 @@ export default function ReviewPage({ defaultTab = 'history' }: ReviewPageProps) 
   const [noteModalVisible, setNoteModalVisible] = useState(false);
   const [currentWrongId, setCurrentWrongId] = useState<string>('');
   const [noteContent, setNoteContent] = useState('');
+  const historyRecords = history.flatMap(group => group.records);
 
   // 加载练习记录
   const loadHistory = useCallback(async () => {
@@ -453,11 +456,11 @@ export default function ReviewPage({ defaultTab = 'history' }: ReviewPageProps) 
 
   return (
     <div style={{ padding: 24 }}>
-      <Tabs activeKey={activeTab} onChange={setActiveTab}>
+      <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key as ReviewTab)}>
         <TabPane tab="练习记录" key="history">
           <Card>
             <Table
-              dataSource={history}
+              dataSource={historyRecords}
               columns={historyColumns}
               loading={loading}
               rowKey="id"

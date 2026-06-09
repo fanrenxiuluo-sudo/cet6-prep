@@ -3,8 +3,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import log from 'electron-log';
-import { createCard, reviewCard, needsReview, type Card, type Rating } from '../practice/fsrsService';
+import { createCard, reviewCard, type Card, type Rating } from '../practice/fsrsService';
 
 // ═══════════════════ 类型 ═══════════════════
 
@@ -179,7 +178,7 @@ export async function reviewWrongQuestion(
  */
 export async function getDueForReview(
   prisma: PrismaClient,
-  limit: number = 20
+  limit = 20
 ): Promise<WrongQuestionWithCard[]> {
   const now = new Date();
 
@@ -258,7 +257,6 @@ export async function getWrongBookStats(
 
   const allWrong = await prisma.wrongQuestion.findMany({
     select: {
-      section: true,
       mastered: true,
       due: true,
       stability: true,

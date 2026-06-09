@@ -91,7 +91,7 @@ const QuestionBankPage: React.FC = () => {
       if (filters.difficulty) filterParams.difficulty = filters.difficulty;
 
       const data = await window.api.questionList(filterParams);
-      setQuestions(data);
+      setQuestions(data as QuestionRecord[]);
       setTotal(data.length);
     } catch (err) {
       message.error('加载题库失败');
@@ -198,7 +198,7 @@ const QuestionBankPage: React.FC = () => {
   const showDetail = async (record: QuestionRecord) => {
     try {
       const data = await window.api.questionGet(record.id);
-      setDetailData(data);
+      setDetailData(data as Record<string, unknown>);
       setDetailVisible(true);
     } catch {
       message.error('获取题目详情失败');

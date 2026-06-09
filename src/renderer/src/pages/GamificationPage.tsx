@@ -15,6 +15,7 @@ import {
   Empty,
   Tooltip,
   Statistic,
+  Space,
 } from 'antd';
 import {
   TrophyOutlined,

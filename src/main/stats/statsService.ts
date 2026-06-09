@@ -82,7 +82,7 @@ export interface ComprehensiveStats {
 
 export async function getTrendData(
   prisma: PrismaClient,
-  days: number = 30
+  days = 30
 ): Promise<TrendData[]> {
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
@@ -230,7 +230,7 @@ export async function getTimeDistribution(
 
 export async function getMasteryProgress(
   prisma: PrismaClient,
-  days: number = 30
+  days = 30
 ): Promise<MasteryProgress[]> {
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
@@ -281,7 +281,7 @@ export async function getMasteryProgress(
 
 export async function getLearningHeatmap(
   prisma: PrismaClient,
-  days: number = 365
+  days = 365
 ): Promise<LearningHeatmap[]> {
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
@@ -316,7 +316,7 @@ export async function getLearningHeatmap(
 
 export async function getWrongTrend(
   prisma: PrismaClient,
-  days: number = 30
+  days = 30
 ): Promise<WrongTrend[]> {
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
@@ -390,9 +390,9 @@ export async function getStreakData(
 
   // 计算连续天数（从今天往前数）
   let currentStreak = 0;
-  let checkDate = new Date(today);
+  const checkDate = new Date(today);
 
-  while (true) {
+  for (;;) {
     const dayStart = new Date(checkDate);
     dayStart.setHours(0, 0, 0, 0);
     const dayEnd = new Date(checkDate);

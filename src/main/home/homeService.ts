@@ -3,12 +3,11 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import log from 'electron-log';
 
 // ═══════════════════ 类型 ═══════════════════
 
 export interface TodayTask {
-  type: 'practice' | 'review' | 'wrongbook';
+  type: 'practice' | 'review' | 'wrongbook' | 'import';
   title: string;
   description: string;
   count: number;
@@ -97,14 +96,15 @@ export async function getTodayTasks(
   }
 
   // 3. 分项练习建议
-  const sectionStats = await prisma.studyRecord.groupBy({
-    by: ['questionId'],
-    _count: true,
-    _avg: { isCorrect: true },
+  const studyRecords = await prisma.studyRecord.findMany({
+    select: {
+      questionId: true,
+      isCorrect: true,
+    },
   });
 
   // 获取每个 questionId 对应的 section
-  const questionIds = sectionStats.map(s => s.questionId);
+  const questionIds = Array.from(new Set(studyRecords.map(s => s.questionId)));
   const questions = await prisma.question.findMany({
     where: { id: { in: questionIds } },
     select: { id: true, section: true },
@@ -113,11 +113,11 @@ export async function getTodayTasks(
   const sectionMap = new Map(questions.map(q => [q.id, q.section]));
   const sectionAccuracy = new Map<string, { total: number; correct: number }>();
 
-  for (const stat of sectionStats) {
-    const section = sectionMap.get(stat.questionId) || 'UNKNOWN';
+  for (const record of studyRecords) {
+    const section = sectionMap.get(record.questionId) || 'UNKNOWN';
     const existing = sectionAccuracy.get(section) || { total: 0, correct: 0 };
-    existing.total += stat._count;
-    if (stat._avg.isCorrect) existing.correct += stat._count;
+    existing.total++;
+    if (record.isCorrect) existing.correct++;
     sectionAccuracy.set(section, existing);
   }
 
@@ -208,9 +208,9 @@ export async function getQuickStats(
 
   // 连续学习天数
   let streakDays = 0;
-  let checkDate = new Date(todayStart);
+  const checkDate = new Date(todayStart);
 
-  while (true) {
+  for (;;) {
     const dayStart = new Date(checkDate);
     dayStart.setHours(0, 0, 0, 0);
     const dayEnd = new Date(checkDate);
@@ -244,7 +244,7 @@ export async function getQuickStats(
 
 export async function getRecentActivity(
   prisma: PrismaClient,
-  limit: number = 10
+  limit = 10
 ): Promise<RecentActivity[]> {
   // 获取最近的学习记录
   const records = await prisma.studyRecord.findMany({

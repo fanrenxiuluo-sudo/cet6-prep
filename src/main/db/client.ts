@@ -126,6 +126,13 @@ async function ensureSchema(db: PrismaClient): Promise<void> {
       "lastWrongAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
       "mastered" BOOLEAN NOT NULL DEFAULT false,
       "notes" TEXT,
+      "stability" REAL NOT NULL DEFAULT 0.4,
+      "difficulty" REAL NOT NULL DEFAULT 5,
+      "elapsedDays" INTEGER NOT NULL DEFAULT 0,
+      "scheduledDays" INTEGER NOT NULL DEFAULT 0,
+      "reps" INTEGER NOT NULL DEFAULT 0,
+      "state" TEXT NOT NULL DEFAULT 'New',
+      "due" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
       CONSTRAINT "WrongQuestion_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
     )`,
     `CREATE TABLE IF NOT EXISTS "StudyPlan" (
@@ -180,6 +187,30 @@ async function ensureSchema(db: PrismaClient): Promise<void> {
   for (const sql of statements) {
     await db.$executeRawUnsafe(sql);
   }
+
+  await ensureWrongQuestionFsrsColumns(db);
+}
+
+async function ensureWrongQuestionFsrsColumns(db: PrismaClient): Promise<void> {
+  const columns = await db.$queryRawUnsafe<Array<{ name: string }>>('PRAGMA table_info("WrongQuestion")');
+  const existing = new Set(columns.map(column => column.name));
+  const migrations: Array<{ name: string; sql: string }> = [
+    { name: 'stability', sql: 'ALTER TABLE "WrongQuestion" ADD COLUMN "stability" REAL NOT NULL DEFAULT 0.4' },
+    { name: 'difficulty', sql: 'ALTER TABLE "WrongQuestion" ADD COLUMN "difficulty" REAL NOT NULL DEFAULT 5' },
+    { name: 'elapsedDays', sql: 'ALTER TABLE "WrongQuestion" ADD COLUMN "elapsedDays" INTEGER NOT NULL DEFAULT 0' },
+    { name: 'scheduledDays', sql: 'ALTER TABLE "WrongQuestion" ADD COLUMN "scheduledDays" INTEGER NOT NULL DEFAULT 0' },
+    { name: 'reps', sql: 'ALTER TABLE "WrongQuestion" ADD COLUMN "reps" INTEGER NOT NULL DEFAULT 0' },
+    { name: 'state', sql: 'ALTER TABLE "WrongQuestion" ADD COLUMN "state" TEXT NOT NULL DEFAULT \'New\'' },
+    { name: 'due', sql: 'ALTER TABLE "WrongQuestion" ADD COLUMN "due" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP' },
+  ];
+
+  for (const migration of migrations) {
+    if (!existing.has(migration.name)) {
+      await db.$executeRawUnsafe(migration.sql);
+    }
+  }
+
+  await db.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS "WrongQuestion_due_idx" ON "WrongQuestion"("due")');
 }
 
 export function getDb(): PrismaClient {
