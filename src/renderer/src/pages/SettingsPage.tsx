@@ -13,15 +13,17 @@ import {
   Descriptions,
   Tag,
   Spin,
+  Input,
 } from 'antd';
 import {
   SaveOutlined,
   ExportOutlined,
   ImportOutlined,
   DeleteOutlined,
-  InfoCircleOutlined,
+  FolderOpenOutlined,
 } from '@ant-design/icons';
 import useThemeStore from '../stores/useThemeStore';
+import { useAppSettingsStore } from '../stores/useAppSettingsStore';
 
 interface UserSettings {
   theme: 'light' | 'dark' | 'system';
@@ -85,6 +87,8 @@ export default function SettingsPage() {
         if (values.theme) {
           useThemeStore.getState().setTheme(values.theme);
         }
+        // 推送到全局设置 store，所有页面立即生效
+        useAppSettingsStore.getState().replaceSettings(values);
       } else {
         message.error('保存失败');
       }
@@ -95,13 +99,25 @@ export default function SettingsPage() {
     }
   };
 
+  const handleBrowseFolder = async () => {
+    const folder = await window.api.dialogOpenDirectory();
+    if (folder) {
+      form.setFieldsValue({ exportPath: folder });
+    }
+  };
+
   const handleExport = async () => {
     const values = form.getFieldsValue();
-    const exportPath = values.exportPath || '';
+    let exportPath = values.exportPath || '';
 
     if (!exportPath) {
-      message.warning('请先设置导出路径');
-      return;
+      const picked = await window.api.dialogOpenDirectory();
+      if (!picked) {
+        message.warning('已取消导出');
+        return;
+      }
+      exportPath = picked;
+      form.setFieldsValue({ exportPath });
     }
 
     setLoading(true);
@@ -120,21 +136,28 @@ export default function SettingsPage() {
   };
 
   const handleImport = async () => {
+    const filePath = await window.api.dialogOpenFile({
+      filters: [{ name: 'JSON 备份文件', extensions: ['json'] }],
+    });
+    if (!filePath) return;
+
     Modal.confirm({
       title: '确认导入',
-      content: '导入将覆盖现有数据，确定继续？',
+      content: `将从 "${filePath}" 导入数据。同 ID 的题目/记录将被覆盖更新，其他数据保留。是否继续？`,
+      okType: 'primary',
+      okText: '开始导入',
       onOk: async () => {
-        const values = form.getFieldsValue();
-        const exportPath = values.exportPath || '';
-
-        if (!exportPath) {
-          message.warning('请先设置导出路径（用作导入路径）');
-          return;
-        }
-
         setLoading(true);
         try {
-          message.info('请通过命令行导入数据文件');
+          const result = await window.api.settingsImport(filePath);
+          if (result.success) {
+            const detail = result.detail
+              ? Object.entries(result.detail).filter(([, v]) => v > 0).map(([k, v]) => `${k}:${v}`).join('，')
+              : '';
+            message.success(`成功导入 ${result.imported} 条数据${detail ? `（${detail}）` : ''}`);
+          } else {
+            message.error(`导入失败：${result.error || '未知错误'}`);
+          }
         } catch (error) {
           message.error('导入失败');
         } finally {
@@ -211,8 +234,18 @@ export default function SettingsPage() {
             </Select>
           </Form.Item>
 
-          <Form.Item label="字体大小" name="fontSize">
-            <InputNumber min={12} max={24} addonAfter="px" style={{ width: 200 }} />
+          <Form.Item label="字体大小" name="fontSize" extra="12-24px，全局生效，保存后立即应用">
+            <InputNumber
+              min={12}
+              max={24}
+              addonAfter="px"
+              style={{ width: 200 }}
+              onChange={(v) => {
+                if (typeof v === 'number') {
+                  useAppSettingsStore.getState().setSettings({ fontSize: v });
+                }
+              }}
+            />
           </Form.Item>
         </Card>
 
@@ -239,8 +272,15 @@ export default function SettingsPage() {
         </Card>
 
         <Card title="数据管理" style={{ marginBottom: 16 }}>
-          <Form.Item label="导出/导入路径" name="exportPath">
-            <input type="text" placeholder="选择文件夹路径" style={{ width: '100%' }} />
+          <Form.Item label="导出文件夹" name="exportPath" extra="留空时点击导出会自动弹出文件夹选择对话框">
+            <Input
+              placeholder="选择文件夹路径"
+              addonAfter={
+                <Button type="text" size="small" icon={<FolderOpenOutlined />} onClick={handleBrowseFolder}>
+                  浏览
+                </Button>
+              }
+            />
           </Form.Item>
 
           <Space>

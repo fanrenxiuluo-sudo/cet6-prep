@@ -72,7 +72,7 @@ interface CET6API {
     dataSize: string;
   }>;
   settingsExport: (exportPath: string) => Promise<{ success: boolean; path: string; error?: string }>;
-  settingsImport: (filePath: string) => Promise<{ success: boolean; imported: number; error?: string }>;
+  settingsImport: (filePath: string) => Promise<{ success: boolean; imported: number; error?: string; detail?: Record<string, number> }>;
   settingsClear: (options: { studyRecords?: boolean; wrongQuestions?: boolean; all?: boolean }) => Promise<{ success: boolean; deleted: number; error?: string }>;
 
   // Questions
@@ -121,6 +121,8 @@ interface CET6API {
     totalQuestions: number;
     overallAccuracy: number;
     avgTimeMs: number;
+    currentStreak: number;
+    longestStreak: number;
     sectionStats: Array<{ section: string; totalCount: number; correctCount: number; accuracy: number; avgTimeMs: number }>;
     recentTrend: Array<{ date: string; count: number; accuracy: number }>;
   }>;
@@ -351,6 +353,10 @@ interface CET6API {
   // App
   appVersion: () => Promise<string>;
   appQuit: () => void;
+
+  // Dialog
+  dialogOpenDirectory: () => Promise<string | null>;
+  dialogOpenFile: (options?: { filters?: Array<{ name: string; extensions: string[] }> }) => Promise<string | null>;
 }
 
 declare global {

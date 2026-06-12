@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Card, Button, Space, Radio, Input, Tag, Progress, Typography, Statistic, Row, Col, message, Spin, Segmented, Alert } from 'antd';
-import { ClockCircleOutlined, CheckCircleOutlined, CloseCircleOutlined, ArrowRightOutlined, BookOutlined, ThunderboltOutlined, SafetyOutlined } from '@ant-design/icons';
+import { Card, Button, Space, Radio, Input, Tag, Progress, Typography, Statistic, Row, Col, message, Spin, Segmented, Alert, Modal } from 'antd';
+import { ClockCircleOutlined, CheckCircleOutlined, CloseCircleOutlined, ArrowRightOutlined, ArrowLeftOutlined, BookOutlined, ThunderboltOutlined, SafetyOutlined, StepForwardOutlined } from '@ant-design/icons';
 import useThemeStore from '../stores/useThemeStore';
+import { useAppSettingsStore, playFeedbackSound } from '../stores/useAppSettingsStore';
 
 const { Text, Paragraph, Title } = Typography;
 const { TextArea } = Input;
@@ -71,9 +72,14 @@ const PracticePage: React.FC = () => {
   const [practiceMode, setPracticeMode] = useState<'learning' | 'exam'>('learning');
 
   const [userAnswer, setUserAnswer] = useState<string>('');
+  const [structuredAnswer, setStructuredAnswer] = useState<Record<string, string>>({});
   const [showFeedback, setShowFeedback] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [lastResult, setLastResult] = useState<{ isCorrect: boolean; correctAnswer: string } | null>(null);
+  // 缓存历史已加载的题目与答题，用于"上一题"返回
+  const [questionCache, setQuestionCache] = useState<Record<number, Question>>({});
+  const [answerCache, setAnswerCache] = useState<Record<number, { userAnswer: string; structuredAnswer: Record<string, string>; showFeedback: boolean; lastResult: { isCorrect: boolean; correctAnswer: string } | null }>>({});
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const questionStartRef = useRef<number>(0);
@@ -81,9 +87,15 @@ const PracticePage: React.FC = () => {
   const isDark = useThemeStore((s) => s.theme) === 'dark' ? true :
     (useThemeStore((s) => s.theme) === 'system' ? (window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? true) : false);
 
+  // 应用全局设置：是否显示解析、每日目标、音效
+  const showExplanationSetting = useAppSettingsStore((s) => s.settings.showExplanation);
+  const dailyGoal = useAppSettingsStore((s) => s.settings.dailyGoal);
+
+  // 每题独立计时（以 questionStartRef 为基准），避免跨题累加
   const startTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setState(prev => ({ ...prev, timerMs: Date.now() - prev.startTime }));
+      setState(prev => ({ ...prev, timerMs: Date.now() - (questionStartRef.current || prev.startTime) }));
     }, 100);
   }, []);
 
@@ -120,22 +132,27 @@ const PracticePage: React.FC = () => {
       questionStartRef.current = Date.now();
       const now = Date.now();
 
+      const firstQuestion = first.question as unknown as Question;
       setState(prev => ({
         ...prev,
         phase: 'doing',
         sessionId: session.sessionId,
         questions: session.questionIds as unknown as Question[],
         currentIndex: 0,
-        currentQuestion: first.question as unknown as Question,
+        currentQuestion: firstQuestion,
         results: [],
         startTime: now,
         timerMs: 0,
         loading: false,
       }));
+      setQuestionCache({ 0: firstQuestion });
+      setAnswerCache({});
       setUserAnswer('');
+      setStructuredAnswer({});
       setShowFeedback(false);
       setShowHint(false);
       setLastResult(null);
+      setSubmitting(false);
 
       if (practiceMode === 'exam') {
         startTimer();
@@ -148,7 +165,25 @@ const PracticePage: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!state.sessionId || !state.currentQuestion) return;
-    if (!userAnswer.trim() && !state.currentQuestion.options) {
+    if (submitting) return;
+
+    const q = state.currentQuestion;
+    const isObjective = !!q.options;
+    const isStructured = q.questionType === 'BANKED_CLOZE' || q.questionType === 'INFO_MATCHING';
+
+    // 拦截空作答：选择题、主观题、结构化填空均需校验
+    if (isObjective) {
+      if (!userAnswer || !String(userAnswer).trim()) {
+        message.warning('请先选择一个选项');
+        return;
+      }
+    } else if (isStructured) {
+      const filled = Object.values(structuredAnswer || {}).filter(v => String(v || '').trim()).length;
+      if (filled === 0) {
+        message.warning('请至少填写一个空');
+        return;
+      }
+    } else if (!userAnswer.trim()) {
       message.warning('请先作答');
       return;
     }
@@ -158,15 +193,21 @@ const PracticePage: React.FC = () => {
     }
     const timeSpentMs = Date.now() - questionStartRef.current;
 
+    const submittedAnswer: string = isStructured
+      ? JSON.stringify(structuredAnswer)
+      : userAnswer;
+
+    setSubmitting(true);
     try {
       const result = await window.api.practiceSubmit(state.sessionId, {
         questionId: state.currentQuestion.id,
-        answer: userAnswer,
+        answer: submittedAnswer,
         timeSpentMs,
       });
 
       setLastResult(result);
       setShowFeedback(true);
+      playFeedbackSound(result.isCorrect ? 'correct' : 'wrong');
 
       setState(prev => ({
         ...prev,
@@ -174,53 +215,164 @@ const PracticePage: React.FC = () => {
           questionId: state.currentQuestion!.id,
           isCorrect: result.isCorrect,
           correctAnswer: result.correctAnswer,
-          userAnswer: userAnswer,
+          userAnswer: submittedAnswer,
           timeSpentMs,
         }],
       }));
     } catch (err) {
-      message.error('提交失败');
+      message.error('提交失败：' + (err as Error)?.message);
       if (practiceMode === 'exam') {
         startTimer();
       }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // 把当前题答题状态写入缓存
+  const cacheCurrentAnswerState = useCallback((index: number) => {
+    setAnswerCache(prev => ({
+      ...prev,
+      [index]: {
+        userAnswer,
+        structuredAnswer,
+        showFeedback,
+        lastResult,
+      },
+    }));
+  }, [userAnswer, structuredAnswer, showFeedback, lastResult]);
+
+  // 应用某一题的答题状态（从缓存）
+  const applyCachedAnswerState = useCallback((index: number) => {
+    const cached = answerCache[index];
+    if (cached) {
+      setUserAnswer(cached.userAnswer || '');
+      setStructuredAnswer(cached.structuredAnswer || {});
+      setShowFeedback(!!cached.showFeedback);
+      setLastResult(cached.lastResult || null);
+    } else {
+      setUserAnswer('');
+      setStructuredAnswer({});
+      setShowFeedback(false);
+      setLastResult(null);
+    }
+    setShowHint(false);
+  }, [answerCache]);
+
+  const finishSession = async () => {
+    if (!state.sessionId) return;
+    stopTimer();
+    setState(prev => ({ ...prev, phase: 'result', loading: true }));
+    try {
+      await window.api.practiceComplete(state.sessionId);
+    } catch {
+      // ignore — 已经结束
+    } finally {
+      setState(prev => ({ ...prev, loading: false }));
     }
   };
 
   const handleNext = async () => {
     if (!state.sessionId) return;
 
+    cacheCurrentAnswerState(state.currentIndex);
+
     const nextIndex = state.currentIndex + 1;
 
     if (nextIndex >= state.questions.length) {
-      stopTimer();
-      setState(prev => ({ ...prev, phase: 'result', loading: true }));
-      try {
-        await window.api.practiceComplete(state.sessionId);
-        setState(prev => ({ ...prev, loading: false }));
-      } catch {
-        setState(prev => ({ ...prev, loading: false }));
-      }
+      await finishSession();
       return;
     }
 
     try {
-      const next = await window.api.practiceQuestion(state.sessionId);
+      // 若已缓存（曾经看过的题）则直接复用，否则向后端请求新题
+      let nextQuestion: Question | null = questionCache[nextIndex] || null;
+      if (!nextQuestion) {
+        const next = await window.api.practiceQuestion(state.sessionId);
+        nextQuestion = next?.question as unknown as Question;
+        if (nextQuestion) {
+          setQuestionCache(prev => ({ ...prev, [nextIndex]: nextQuestion as Question }));
+        }
+      }
+      if (!nextQuestion) {
+        message.warning('无法加载下一题');
+        return;
+      }
       questionStartRef.current = Date.now();
       setState(prev => ({
         ...prev,
         currentIndex: nextIndex,
-        currentQuestion: next?.question as unknown as Question,
+        currentQuestion: nextQuestion as Question,
+        timerMs: 0,
       }));
-      setUserAnswer('');
-      setShowFeedback(false);
-      setShowHint(false);
-      setLastResult(null);
+      applyCachedAnswerState(nextIndex);
       if (practiceMode === 'exam') {
         startTimer();
       }
     } catch (err) {
       message.error('加载下一题失败');
     }
+  };
+
+  const handlePrev = () => {
+    if (state.currentIndex <= 0) return;
+    cacheCurrentAnswerState(state.currentIndex);
+    const prevIndex = state.currentIndex - 1;
+    const prevQuestion = questionCache[prevIndex];
+    if (!prevQuestion) {
+      message.warning('上一题不可用');
+      return;
+    }
+    questionStartRef.current = Date.now();
+    setState(prev => ({
+      ...prev,
+      currentIndex: prevIndex,
+      currentQuestion: prevQuestion,
+      timerMs: 0,
+    }));
+    applyCachedAnswerState(prevIndex);
+    // 学习/考试模式下都停掉计时器：返回上一题是复盘行为
+    stopTimer();
+  };
+
+  const handleSkip = async () => {
+    if (!state.sessionId || !state.currentQuestion) return;
+    if (showFeedback) return; // 已提交不允许跳过
+    Modal.confirm({
+      title: '跳过本题？',
+      content: '跳过后将记录为"未作答"（视为答错），稍后可在错题本中找到。',
+      okText: '跳过',
+      cancelText: '继续作答',
+      onOk: async () => {
+        try {
+          if (practiceMode === 'exam') stopTimer();
+          const timeSpentMs = Date.now() - questionStartRef.current;
+          // 提交空答案，后端按题型评分（一般为错）
+          const result = await window.api.practiceSubmit(state.sessionId!, {
+            questionId: state.currentQuestion!.id,
+            answer: '',
+            timeSpentMs,
+          });
+          setState(prev => ({
+            ...prev,
+            results: [...prev.results, {
+              questionId: state.currentQuestion!.id,
+              isCorrect: result.isCorrect,
+              correctAnswer: result.correctAnswer,
+              userAnswer: '',
+              timeSpentMs,
+            }],
+          }));
+          setLastResult(result);
+          setShowFeedback(true);
+          // 自动跳到下一题
+          setTimeout(() => { void handleNext(); }, 50);
+        } catch (err) {
+          message.error('跳过失败');
+          if (practiceMode === 'exam') startTimer();
+        }
+      },
+    });
   };
 
   const formatTime = (ms: number) => {
@@ -340,6 +492,58 @@ const PracticePage: React.FC = () => {
                 </Radio>
               ))}
             </Radio.Group>
+          ) : (q.questionType === 'BANKED_CLOZE') ? (
+            <div>
+              <Text type="secondary" style={{ display: 'block', marginBottom: 8 }}>
+                按编号从词库中选择对应单词（不区分大小写）。
+              </Text>
+              <Space direction="vertical" style={{ width: '100%' }}>
+                {(Array.isArray(content.blanks) ? content.blanks : [1, 2, 3, 4, 5]).map((blankNo: number) => (
+                  <Space key={blankNo} align="center">
+                    <Tag color="blue">{blankNo}</Tag>
+                    <Input
+                      placeholder={`第 ${blankNo} 空`}
+                      value={structuredAnswer[String(blankNo)] || ''}
+                      onChange={(e) => setStructuredAnswer(prev => ({ ...prev, [String(blankNo)]: e.target.value }))}
+                      disabled={showFeedback}
+                      style={{ width: 220 }}
+                    />
+                  </Space>
+                ))}
+              </Space>
+            </div>
+          ) : (q.questionType === 'INFO_MATCHING') ? (
+            <div>
+              <Text type="secondary" style={{ display: 'block', marginBottom: 8 }}>
+                为每个题号选择对应段落（A-F）。
+              </Text>
+              <Space direction="vertical" style={{ width: '100%' }}>
+                {(() => {
+                  // 从 correctAnswer 推断题号范围（JSON 的 keys）
+                  let keys: string[] = [];
+                  try {
+                    keys = Object.keys(JSON.parse(q.correctAnswer || '{}'));
+                  } catch { /* ignore */ }
+                  if (keys.length === 0) keys = ['36', '37', '38', '39', '40'];
+                  return keys.map((key) => (
+                    <Space key={key} align="center">
+                      <Tag color="purple">{key}</Tag>
+                      <Radio.Group
+                        value={structuredAnswer[key] || ''}
+                        onChange={(e) => setStructuredAnswer(prev => ({ ...prev, [key]: e.target.value }))}
+                        disabled={showFeedback}
+                        optionType="button"
+                        buttonStyle="solid"
+                      >
+                        {['A', 'B', 'C', 'D', 'E', 'F'].map(letter => (
+                          <Radio.Button key={letter} value={letter}>{letter}</Radio.Button>
+                        ))}
+                      </Radio.Group>
+                    </Space>
+                  ));
+                })()}
+              </Space>
+            </div>
           ) : (
             <TextArea
               rows={q.questionType === 'TRANSLATION' || q.questionType === 'ESSAY' ? 6 : 3}
@@ -449,6 +653,11 @@ const PracticePage: React.FC = () => {
                       </Button>
                     ))}
                   </Space>
+                  {dailyGoal > 0 && (
+                    <div style={{ marginTop: 6, color: '#8c8c8c', fontSize: 12 }}>
+                      💡 每日目标：{dailyGoal} 题（可在「设置」中调整）
+                    </div>
+                  )}
                 </div>
 
                 <Button
@@ -538,25 +747,74 @@ const PracticePage: React.FC = () => {
           >
             <Text strong>正确答案：</Text>
             <Paragraph style={{ whiteSpace: 'pre-wrap' }}>{lastResult.correctAnswer}</Paragraph>
-            {q.explanation && (
+            {q.explanation && showExplanationSetting && (
               <>
                 <Text strong>解析：</Text>
                 <Paragraph style={{ whiteSpace: 'pre-wrap' }}>{q.explanation}</Paragraph>
               </>
             )}
+            {q.explanation && !showExplanationSetting && (
+              <Button type="link" onClick={() => setShowHint(true)} style={{ padding: 0 }}>
+                显示解析
+              </Button>
+            )}
+            {q.explanation && !showExplanationSetting && showHint && (
+              <Paragraph style={{ whiteSpace: 'pre-wrap', marginTop: 8 }}>{q.explanation}</Paragraph>
+            )}
           </Card>
         )}
 
-        <div style={{ marginTop: 16, textAlign: 'right' }}>
-          {!showFeedback ? (
-            <Button type="primary" size="large" onClick={handleSubmit}>
-              提交答案
+        <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+          <Space>
+            <Button
+              icon={<ArrowLeftOutlined />}
+              disabled={state.currentIndex <= 0}
+              onClick={handlePrev}
+            >
+              上一题
             </Button>
-          ) : (
-            <Button type="primary" size="large" icon={<ArrowRightOutlined />} onClick={handleNext}>
-              {state.currentIndex + 1 >= state.questions.length ? '查看结果' : '下一题'}
-            </Button>
-          )}
+            {!showFeedback && (
+              <Button
+                icon={<StepForwardOutlined />}
+                onClick={handleSkip}
+                danger
+              >
+                跳过本题
+              </Button>
+            )}
+          </Space>
+          <Space>
+            {!showFeedback ? (
+              <Button
+                type="primary"
+                size="large"
+                loading={submitting}
+                onClick={handleSubmit}
+              >
+                提交答案
+              </Button>
+            ) : (
+              <Button
+                type="primary"
+                size="large"
+                icon={<ArrowRightOutlined />}
+                onClick={handleNext}
+                style={{
+                  background: 'linear-gradient(135deg, #1677ff 0%, #69b1ff 100%)',
+                  borderColor: '#1677ff',
+                  boxShadow: '0 4px 14px rgba(22,119,255,0.45)',
+                  fontWeight: 'bold',
+                  paddingLeft: 24,
+                  paddingRight: 24,
+                  height: 44,
+                  fontSize: 16,
+                }}
+                autoFocus
+              >
+                {state.currentIndex + 1 >= state.questions.length ? '查看结果' : '下一题'}
+              </Button>
+            )}
+          </Space>
         </div>
       </div>
     );
@@ -602,9 +860,16 @@ const PracticePage: React.FC = () => {
         )}
 
         <Button type="primary" size="large" block style={{ marginTop: 16 }} onClick={() => {
+          stopTimer();
           setState({ phase: 'config', sessionId: null, questions: [], currentIndex: 0, currentQuestion: null, results: [], startTime: 0, timerMs: 0, loading: false });
           setUserAnswer('');
+          setStructuredAnswer({});
+          setQuestionCache({});
+          setAnswerCache({});
           setShowFeedback(false);
+          setShowHint(false);
+          setLastResult(null);
+          setSubmitting(false);
         }}>
           再来一轮
         </Button>

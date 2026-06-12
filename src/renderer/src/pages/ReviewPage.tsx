@@ -33,7 +33,6 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
-const { TabPane } = Tabs;
 const { TextArea } = Input;
 
 interface StudyHistoryItem {
@@ -81,6 +80,8 @@ interface OverviewStats {
   totalQuestions: number;
   overallAccuracy: number;
   avgTimeMs: number;
+  currentStreak: number;
+  longestStreak: number;
   sectionStats: Array<{
     section: string;
     totalCount: number;
@@ -93,6 +94,22 @@ interface OverviewStats {
     count: number;
     accuracy: number;
   }>;
+}
+
+function safeParseJSON<T = unknown>(text: string | null | undefined, fallback: T): T {
+  if (text == null) return fallback;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function extractStem(content: string): string {
+  const c = safeParseJSON<Record<string, unknown>>(content, {});
+  const candidate = (c.stem || c.questionText || c.chineseText || c.prompt || c.passageWithBlanks || c.passage) as string | undefined;
+  if (typeof candidate === 'string' && candidate.trim()) return candidate;
+  return content;
 }
 
 const SECTION_MAP: Record<string, string> = {
@@ -374,7 +391,13 @@ export default function ReviewPage({ defaultTab = 'history' }: ReviewPageProps) 
           </Col>
           <Col span={6}>
             <Card>
-              <Statistic title="连续学习" value={0} suffix="天" prefix={<TrophyOutlined />} />
+              <Statistic
+                title="连续学习"
+                value={stats.currentStreak}
+                suffix={`天 / 最长 ${stats.longestStreak} 天`}
+                prefix={<TrophyOutlined />}
+                valueStyle={{ color: stats.currentStreak > 0 ? '#cf1322' : undefined }}
+              />
             </Card>
           </Col>
         </Row>
@@ -454,99 +477,109 @@ export default function ReviewPage({ defaultTab = 'history' }: ReviewPageProps) 
     );
   };
 
-  return (
-    <div style={{ padding: 24 }}>
-      <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key as ReviewTab)}>
-        <TabPane tab="练习记录" key="history">
-          <Card>
-            <Table
-              dataSource={historyRecords}
-              columns={historyColumns}
-              loading={loading}
-              rowKey="id"
-              pagination={{
-                current: historyPage,
-                onChange: setHistoryPage,
-                pageSize: 20,
-              }}
-              expandable={{
-                expandedRowRender: (record) => (
+  const tabItems = [
+    {
+      key: 'history',
+      label: '练习记录',
+      children: (
+        <Card>
+          <Table
+            dataSource={historyRecords}
+            columns={historyColumns}
+            loading={loading}
+            rowKey="id"
+            pagination={{
+              current: historyPage,
+              onChange: setHistoryPage,
+              pageSize: 20,
+            }}
+            expandable={{
+              expandedRowRender: (record) => (
+                <div style={{ padding: 8 }}>
+                  <p>
+                    <strong>题目：</strong>
+                    {extractStem(record.question.content)}
+                  </p>
+                  <p>
+                    <strong>正确答案：</strong>
+                    <Tag color="green">{record.question.correctAnswer}</Tag>
+                  </p>
+                  {record.question.explanation && (
+                    <p style={{ color: '#999' }}>
+                      <strong>解析：</strong>
+                      {record.question.explanation}
+                    </p>
+                  )}
+                </div>
+              ),
+            }}
+          />
+        </Card>
+      ),
+    },
+    {
+      key: 'wrongbook',
+      label: '错题本',
+      children: (
+        <Card>
+          <Space style={{ marginBottom: 16 }}>
+            <Select
+              placeholder="按分类筛选"
+              allowClear
+              style={{ width: 120 }}
+              onChange={(value) => setWrongFilter((prev) => ({ ...prev, section: value }))}
+            >
+              <Select.Option value="LISTENING">听力</Select.Option>
+              <Select.Option value="READING">阅读</Select.Option>
+              <Select.Option value="WRITING">写作</Select.Option>
+              <Select.Option value="TRANSLATION">翻译</Select.Option>
+            </Select>
+            <Select
+              placeholder="按状态筛选"
+              allowClear
+              style={{ width: 120 }}
+              onChange={(value) => setWrongFilter((prev) => ({ ...prev, mastered: value }))}
+            >
+              <Select.Option value={false}>未掌握</Select.Option>
+              <Select.Option value={true}>已掌握</Select.Option>
+            </Select>
+          </Space>
+
+          <Table
+            dataSource={wrongQuestions}
+            columns={wrongColumns}
+            loading={loading}
+            rowKey="id"
+            pagination={{
+              current: wrongPage,
+              onChange: setWrongPage,
+              pageSize: 20,
+            }}
+            expandable={{
+              expandedRowRender: (record) => {
+                const opts = safeParseJSON<Array<{ label: string; text: string }> | null>(record.question.options, null);
+                return (
                   <div style={{ padding: 8 }}>
                     <p>
                       <strong>题目：</strong>
-                      {record.question.content.substring(0, 100)}...
+                      {extractStem(record.question.content)}
                     </p>
-                    <p>
-                      <strong>正确答案：</strong>
-                      {record.question.correctAnswer}
-                    </p>
-                    {record.question.explanation && (
-                      <p>
-                        <strong>解析：</strong>
-                        {record.question.explanation}
-                      </p>
-                    )}
-                  </div>
-                ),
-              }}
-            />
-          </Card>
-        </TabPane>
-
-        <TabPane tab="错题本" key="wrongbook">
-          <Card>
-            <Space style={{ marginBottom: 16 }}>
-              <Select
-                placeholder="按分类筛选"
-                allowClear
-                style={{ width: 120 }}
-                onChange={(value) => setWrongFilter((prev) => ({ ...prev, section: value }))}
-              >
-                <Select.Option value="LISTENING">听力</Select.Option>
-                <Select.Option value="READING">阅读</Select.Option>
-                <Select.Option value="WRITING">写作</Select.Option>
-                <Select.Option value="TRANSLATION">翻译</Select.Option>
-              </Select>
-              <Select
-                placeholder="按状态筛选"
-                allowClear
-                style={{ width: 120 }}
-                onChange={(value) => setWrongFilter((prev) => ({ ...prev, mastered: value }))}
-              >
-                <Select.Option value={false}>未掌握</Select.Option>
-                <Select.Option value={true}>已掌握</Select.Option>
-              </Select>
-            </Space>
-
-            <Table
-              dataSource={wrongQuestions}
-              columns={wrongColumns}
-              loading={loading}
-              rowKey="id"
-              pagination={{
-                current: wrongPage,
-                onChange: setWrongPage,
-                pageSize: 20,
-              }}
-              expandable={{
-                expandedRowRender: (record) => (
-                  <div style={{ padding: 8 }}>
-                    <p>
-                      <strong>题目：</strong>
-                      {record.question.content.substring(0, 150)}...
-                    </p>
-                    {record.question.options && (
-                      <p>
+                    {opts && opts.length > 0 && (
+                      <div style={{ marginBottom: 8 }}>
                         <strong>选项：</strong>
-                        {record.question.options}
-                      </p>
+                        <div style={{ marginTop: 4 }}>
+                          {opts.map(o => (
+                            <div key={o.label}><Tag>{o.label}</Tag> {o.text}</div>
+                          ))}
+                        </div>
+                      </div>
                     )}
                     <p>
                       <strong>正确答案：</strong>
-                      {record.question.correctAnswer}
+                      <Tag color="green">{record.question.correctAnswer}</Tag>
                     </p>
                     {record.question.explanation && (
-                      <p>
+                      <p style={{ color: '#999' }}>
                         <strong>解析：</strong>
                         {record.question.explanation}
                       </p>
@@ -558,16 +591,27 @@ export default function ReviewPage({ defaultTab = 'history' }: ReviewPageProps) 
                       </p>
                     )}
                   </div>
-                ),
-              }}
-            />
-          </Card>
-        </TabPane>
+                );
+              },
+            }}
+          />
+        </Card>
+      ),
+    },
+    {
+      key: 'stats',
+      label: '学习统计',
+      children: renderStats(),
+    },
+  ];
 
-        <TabPane tab="学习统计" key="stats">
-          {renderStats()}
-        </TabPane>
-      </Tabs>
+  return (
+    <div style={{ padding: 24 }}>
+      <Tabs
+        activeKey={activeTab}
+        onChange={(key) => setActiveTab(key as ReviewTab)}
+        items={tabItems}
+      />
 
       <Modal
         title="添加笔记"

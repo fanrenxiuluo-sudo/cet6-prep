@@ -110,17 +110,60 @@ export async function getAppInfo(
 
 // ═══════════════════ 数据导出 ═══════════════════
 
+/**
+ * 完整导出：包含所有用户相关数据（题目/学习/错题/成就/计划/爬虫历史/设置）
+ * 文件名包含 schemaVersion 与时间戳，方便后续兼容
+ */
 export async function exportData(
   prisma: PrismaClient,
   exportPath: string
 ): Promise<{ success: boolean; path: string; error?: string }> {
   try {
+    if (!exportPath || !fs.existsSync(exportPath)) {
+      return { success: false, path: '', error: '导出目录不存在或未填写' };
+    }
+
+    const [
+      questions,
+      audioFiles,
+      studyRecords,
+      wrongQuestions,
+      userStats,
+      studyPlans,
+      userSettings,
+      scrapingTasks,
+      scrapingFailLogs,
+      scrapingImportResults,
+    ] = await Promise.all([
+      prisma.question.findMany(),
+      prisma.audioFile.findMany(),
+      prisma.studyRecord.findMany(),
+      prisma.wrongQuestion.findMany(),
+      prisma.userStats.findMany(),
+      prisma.studyPlan.findMany(),
+      prisma.userSetting.findMany(),
+      prisma.scrapingTask.findMany(),
+      prisma.scrapingFailLog.findMany(),
+      prisma.scrapingImportResult.findMany(),
+    ]);
+
     const data = {
+      schemaVersion: 2,
       exportTime: new Date().toISOString(),
-      questions: await prisma.question.findMany(),
-      studyRecords: await prisma.studyRecord.findMany(),
-      wrongQuestions: await prisma.wrongQuestion.findMany(),
-      userSettings: await prisma.userSetting.findMany(),
+      app: {
+        name: 'CET6备考助手',
+        version: app.getVersion(),
+      },
+      questions,
+      audioFiles,
+      studyRecords,
+      wrongQuestions,
+      userStats,
+      studyPlans,
+      userSettings,
+      scrapingTasks,
+      scrapingFailLogs,
+      scrapingImportResults,
     };
 
     const filePath = path.join(exportPath, `cet6-prep-backup-${Date.now()}.json`);
@@ -129,41 +172,146 @@ export async function exportData(
     return { success: true, path: filePath };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '未知错误';
+    log.error('Export failed:', error);
     return { success: false, path: '', error: errorMessage };
   }
 }
 
 // ═══════════════════ 数据导入 ═══════════════════
 
+/**
+ * 真实导入：upsert 题目/学习记录/错题/设置/成就；爬虫历史可选
+ */
 export async function importData(
   prisma: PrismaClient,
   filePath: string
-): Promise<{ success: boolean; imported: number; error?: string }> {
+): Promise<{ success: boolean; imported: number; error?: string; detail?: Record<string, number> }> {
   try {
+    if (!filePath || !fs.existsSync(filePath)) {
+      return { success: false, imported: 0, error: '导入文件不存在' };
+    }
+
     const content = fs.readFileSync(filePath, 'utf-8');
-    const data = JSON.parse(content);
+    let data: Record<string, unknown>;
+    try {
+      data = JSON.parse(content) as Record<string, unknown>;
+    } catch (e) {
+      return { success: false, imported: 0, error: 'JSON 解析失败：' + (e as Error).message };
+    }
 
-    let imported = 0;
+    const detail: Record<string, number> = {
+      questions: 0,
+      audioFiles: 0,
+      studyRecords: 0,
+      wrongQuestions: 0,
+      userStats: 0,
+      studyPlans: 0,
+      userSettings: 0,
+    };
 
-    // 导入题目
-    if (data.questions && Array.isArray(data.questions)) {
-      for (const q of data.questions) {
+    // 1. 音频文件（被 question 引用，先建）
+    if (Array.isArray(data.audioFiles)) {
+      for (const a of data.audioFiles as Array<Record<string, unknown>>) {
         try {
-          await prisma.question.upsert({
-            where: { id: q.id },
-            update: q,
-            create: q,
+          await prisma.audioFile.upsert({
+            where: { id: a.id as string },
+            update: a,
+            create: a as never,
           });
-          imported++;
-        } catch (e) {
-          // 跳过重复题目
-        }
+          detail.audioFiles++;
+        } catch { /* skip */ }
       }
     }
 
-    return { success: true, imported };
+    // 2. 题目（按 id upsert，保留原 ID 以支持复用 wrongQuestion/studyRecord 关联）
+    if (Array.isArray(data.questions)) {
+      for (const q of data.questions as Array<Record<string, unknown>>) {
+        try {
+          await prisma.question.upsert({
+            where: { id: q.id as string },
+            update: q,
+            create: q as never,
+          });
+          detail.questions++;
+        } catch { /* skip */ }
+      }
+    }
+
+    // 3. 用户设置
+    if (Array.isArray(data.userSettings)) {
+      for (const s of data.userSettings as Array<{ key: string; value: string }>) {
+        try {
+          await prisma.userSetting.upsert({
+            where: { key: s.key },
+            update: { value: s.value },
+            create: { key: s.key, value: s.value },
+          });
+          detail.userSettings++;
+        } catch { /* skip */ }
+      }
+    }
+
+    // 4. 学习记录
+    if (Array.isArray(data.studyRecords)) {
+      for (const r of data.studyRecords as Array<Record<string, unknown>>) {
+        try {
+          await prisma.studyRecord.upsert({
+            where: { id: r.id as string },
+            update: r,
+            create: r as never,
+          });
+          detail.studyRecords++;
+        } catch { /* skip — 多数情况下 question 不存在或重复 */ }
+      }
+    }
+
+    // 5. 错题
+    if (Array.isArray(data.wrongQuestions)) {
+      for (const w of data.wrongQuestions as Array<Record<string, unknown>>) {
+        try {
+          await prisma.wrongQuestion.upsert({
+            where: { id: w.id as string },
+            update: w,
+            create: w as never,
+          });
+          detail.wrongQuestions++;
+        } catch { /* skip */ }
+      }
+    }
+
+    // 6. 用户统计（成就 / 等级）
+    if (Array.isArray(data.userStats)) {
+      for (const u of data.userStats as Array<Record<string, unknown>>) {
+        try {
+          await prisma.userStats.upsert({
+            where: { id: u.id as string },
+            update: u,
+            create: u as never,
+          });
+          detail.userStats++;
+        } catch { /* skip */ }
+      }
+    }
+
+    // 7. 学习计划
+    if (Array.isArray(data.studyPlans)) {
+      for (const p of data.studyPlans as Array<Record<string, unknown>>) {
+        try {
+          await prisma.studyPlan.upsert({
+            where: { id: p.id as string },
+            update: p,
+            create: p as never,
+          });
+          detail.studyPlans++;
+        } catch { /* skip */ }
+      }
+    }
+
+    const imported = Object.values(detail).reduce((a, b) => a + b, 0);
+    return { success: true, imported, detail };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '未知错误';
+    log.error('Import failed:', error);
     return { success: false, imported: 0, error: errorMessage };
   }
 }

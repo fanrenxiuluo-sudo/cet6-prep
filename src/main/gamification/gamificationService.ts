@@ -248,7 +248,7 @@ export async function getUserProfile(
   const streakDays = stats?.streakDays || 0;
 
   // 计算等级
-  const { level, title, nextLevelExp } = calculateLevel(experience);
+  const { level, nextLevelExp } = calculateLevel(experience);
 
   // 统计数据
   const totalPractice = await prisma.studyRecord.count();
@@ -256,16 +256,47 @@ export async function getUserProfile(
   const overallAccuracy = totalPractice > 0 ? correctCount / totalPractice : 0;
   const masteredWrong = await prisma.wrongQuestion.count({ where: { mastered: true } });
 
-  // 统计练习过的题型
-  const practicedSections = await prisma.studyRecord.groupBy({
-    by: ['questionId'],
+  // 练习过的不同 section
+  const distinctSections = await prisma.studyRecord.findMany({
+    select: { question: { select: { section: true } } },
+    distinct: ['questionId'],
+    take: 1000,
   });
-  const sectionIds = practicedSections.map(s => s.questionId);
-  const sections = await prisma.question.findMany({
-    where: { id: { in: sectionIds } },
-    select: { section: true },
+  const uniqueSections = new Set(
+    distinctSections.map((s: { question: { section: string } | null }) => s.question?.section).filter(Boolean)
+  ).size;
+
+  // === Bug #7 真实实现：完美场次 ===
+  // 用 studiedAt 邻近时间作为一次"会话"启发：
+  //   将记录按时间排序，相邻 < 10 分钟视为同一场；某场全对且题数 >= 5 视为"完美发挥"
+  const allRecords = await prisma.studyRecord.findMany({
+    select: { studiedAt: true, isCorrect: true },
+    orderBy: { studiedAt: 'asc' },
   });
-  const uniqueSections = new Set(sections.map(s => s.section)).size;
+  let perfectSessions = 0;
+  let curSize = 0;
+  let curCorrect = 0;
+  let prev: Date | null = null;
+  const GAP_MS = 10 * 60 * 1000;
+  const flush = () => {
+    if (curSize >= 5 && curCorrect === curSize) perfectSessions++;
+  };
+  for (const r of allRecords) {
+    if (!prev || r.studiedAt.getTime() - prev.getTime() > GAP_MS) {
+      flush();
+      curSize = 0;
+      curCorrect = 0;
+    }
+    curSize++;
+    if (r.isCorrect) curCorrect++;
+    prev = r.studiedAt;
+  }
+  flush();
+
+  // === Bug #7 真实实现：导入次数（来源 import/scraper 的题目存在视为 >=1 次） ===
+  const importedCount = await prisma.question.count({
+    where: { dataSource: { in: ['import', 'scraper'] } },
+  });
 
   // 计算成就
   const achievements: Achievement[] = ACHIEVEMENTS.map(ach => {
@@ -281,14 +312,18 @@ export async function getUserProfile(
         unlocked = totalPractice >= ach.target;
         break;
       case 'perfect_session':
-        progress = 0; // TODO: 需要统计完美场次
-        unlocked = false;
+        progress = perfectSessions;
+        unlocked = perfectSessions >= ach.target;
         break;
       case 'accuracy_80':
-      case 'accuracy_90':
-        progress = overallAccuracy >= (ach.target === 1 ? 0.8 : 0.9) ? 1 : 0;
-        unlocked = overallAccuracy >= (ach.target === 1 ? 0.8 : 0.9);
+      case 'accuracy_90': {
+        const threshold = ach.id === 'accuracy_80' ? 0.8 : 0.9;
+        // 必须练习满 20 题以上才允许解锁（避免少量样本被误解锁）
+        const eligible = totalPractice >= 20;
+        progress = eligible && overallAccuracy >= threshold ? 1 : 0;
+        unlocked = eligible && overallAccuracy >= threshold;
         break;
+      }
       case 'master_10':
       case 'master_50':
         progress = masteredWrong;
@@ -301,8 +336,8 @@ export async function getUserProfile(
         unlocked = streakDays >= ach.target;
         break;
       case 'import_first':
-        progress = 1; // TODO: 需要统计导入次数
-        unlocked = true;
+        progress = Math.min(importedCount, ach.target);
+        unlocked = importedCount >= ach.target;
         break;
       case 'all_sections':
         progress = uniqueSections;

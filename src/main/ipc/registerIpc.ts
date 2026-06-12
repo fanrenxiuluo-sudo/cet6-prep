@@ -1,4 +1,4 @@
-import { ipcMain, app } from 'electron';
+import { ipcMain, app, dialog, BrowserWindow } from 'electron';
 import { getDb } from '../db/client';
 import { importFromJsonFile, importFromJsonString } from '../question/importService';
 import * as practiceService from '../practice/practiceService';
@@ -312,5 +312,30 @@ export function registerIpc(): void {
 
   ipcMain.handle('app:quit', () => {
     app.quit();
+  });
+
+  // ═══════════════════ Dialog ═══════════════════
+  ipcMain.handle('dialog:openDirectory', async (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender) || undefined;
+    const result = win
+      ? await dialog.showOpenDialog(win, { properties: ['openDirectory', 'createDirectory'] })
+      : await dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] });
+    if (result.canceled || result.filePaths.length === 0) return null;
+    return result.filePaths[0];
+  });
+
+  ipcMain.handle('dialog:openFile', async (event, options?: { filters?: Array<{ name: string; extensions: string[] }> }) => {
+    const win = BrowserWindow.fromWebContents(event.sender) || undefined;
+    const result = win
+      ? await dialog.showOpenDialog(win, {
+          properties: ['openFile'],
+          filters: options?.filters || [{ name: 'JSON', extensions: ['json'] }, { name: 'All Files', extensions: ['*'] }],
+        })
+      : await dialog.showOpenDialog({
+          properties: ['openFile'],
+          filters: options?.filters || [{ name: 'JSON', extensions: ['json'] }, { name: 'All Files', extensions: ['*'] }],
+        });
+    if (result.canceled || result.filePaths.length === 0) return null;
+    return result.filePaths[0];
   });
 }

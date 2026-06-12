@@ -54,6 +54,8 @@ export interface OverviewStats {
   totalQuestions: number;
   overallAccuracy: number;
   avgTimeMs: number;
+  currentStreak: number;
+  longestStreak: number;
   sectionStats: SectionStat[];
   recentTrend: DailyTrend[];
 }
@@ -285,11 +287,51 @@ export async function getOverviewStats(
     });
   }
 
+  // === Bug #8 修复：计算真实的连续学习/最长连续天数 ===
+  const todayStart0 = new Date();
+  todayStart0.setHours(0, 0, 0, 0);
+  const oneYearAgo = new Date(todayStart0);
+  oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+  const dayRecords = await prisma.studyRecord.findMany({
+    where: { studiedAt: { gte: oneYearAgo } },
+    select: { studiedAt: true },
+    orderBy: { studiedAt: 'asc' },
+  });
+  const dayKeys: string[] = Array.from(new Set(dayRecords.map((r: { studiedAt: Date }) => r.studiedAt.toISOString().split('T')[0]))).sort();
+  // 当前连续
+  let currentStreak = 0;
+  const cursor = new Date(todayStart0);
+  if (!dayKeys.includes(cursor.toISOString().split('T')[0])) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  const daySet = new Set<string>(dayKeys);
+  while (daySet.has(cursor.toISOString().split('T')[0])) {
+    currentStreak++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  // 最长连续
+  let longestStreak = 0;
+  let temp = 0;
+  let prevDay: string = '';
+  for (const day of dayKeys) {
+    if (prevDay) {
+      const diffDays = (new Date(day).getTime() - new Date(prevDay).getTime()) / 86400000;
+      if (diffDays === 1) temp++;
+      else { longestStreak = Math.max(longestStreak, temp); temp = 1; }
+    } else {
+      temp = 1;
+    }
+    prevDay = day;
+  }
+  longestStreak = Math.max(longestStreak, temp);
+
   return {
-    totalSessions: 0, // TODO: 需要 Session 表来准确统计
+    totalSessions: dayKeys.length, // 用学习天数作为练习会话数（无 Session 表的合理估算）
     totalQuestions: totalRecords,
     overallAccuracy: totalRecords > 0 ? correctRecords / totalRecords : 0,
     avgTimeMs: avgTimeResult._avg.responseTimeMs || 0,
+    currentStreak,
+    longestStreak,
     sectionStats: Array.from(sectionAgg.entries()).map(([section, data]) => ({
       section,
       totalCount: data.total,

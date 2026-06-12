@@ -106,6 +106,96 @@ const RATING_MAP: Record<number, { label: string; color: string; description: st
   4: { label: 'Easy', color: '#1890ff', description: '很轻松，直接答对' },
 };
 
+/**
+ * 把题目的 JSON content/options 字符串解析为可读 React 节点。
+ */
+function safeParseJSON<T = unknown>(text: string | null | undefined, fallback: T): T {
+  if (!text) return fallback;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+interface ParsedContent {
+  stem?: string;
+  passage?: string;
+  questionText?: string;
+  chineseText?: string;
+  passageWithBlanks?: string;
+  wordBank?: string[];
+  prompt?: string;
+  keyPhrases?: string[];
+  minWords?: number;
+  maxWords?: number;
+  blanks?: number[];
+}
+
+function renderQuestionBody(question: {
+  content: string;
+  options: string | null;
+}): React.ReactNode {
+  const content = safeParseJSON<ParsedContent>(question.content, { stem: question.content });
+  const options = safeParseJSON<Array<{ label: string; text: string }> | null>(question.options, null);
+
+  return (
+    <div style={{ fontSize: 14, lineHeight: 1.8 }}>
+      {content.passage && (
+        <div style={{ marginBottom: 12, whiteSpace: 'pre-wrap', padding: 10, background: 'rgba(127,127,127,0.06)', borderRadius: 6 }}>
+          {content.passage}
+        </div>
+      )}
+      {content.chineseText && (
+        <div style={{ marginBottom: 12, whiteSpace: 'pre-wrap', padding: 10, background: 'rgba(127,127,127,0.06)', borderRadius: 6 }}>
+          {content.chineseText}
+        </div>
+      )}
+      {content.passageWithBlanks && (
+        <div style={{ marginBottom: 12, whiteSpace: 'pre-wrap' }}>
+          {content.passageWithBlanks}
+        </div>
+      )}
+      {content.stem && <div style={{ marginBottom: 8, fontWeight: 'bold' }}>{content.stem}</div>}
+      {content.questionText && <div style={{ marginBottom: 8 }}>{content.questionText}</div>}
+      {content.prompt && (
+        <div style={{ marginBottom: 8, fontStyle: 'italic' }}>题目：{content.prompt}</div>
+      )}
+      {content.minWords && content.maxWords && (
+        <div style={{ marginBottom: 8, color: '#fa8c16' }}>字数要求：{content.minWords}-{content.maxWords} 词</div>
+      )}
+      {content.wordBank && content.wordBank.length > 0 && (
+        <div style={{ marginBottom: 8 }}>
+          <span style={{ fontWeight: 'bold' }}>词库：</span>
+          <Space wrap size={[6, 6]}>
+            {content.wordBank.map((w, i) => (
+              <Tag key={i} color="blue">{i + 1}. {w}</Tag>
+            ))}
+          </Space>
+        </div>
+      )}
+      {content.keyPhrases && content.keyPhrases.length > 0 && (
+        <div style={{ marginBottom: 8 }}>
+          <span style={{ fontWeight: 'bold' }}>关键短语：</span>
+          <Space wrap size={[6, 6]}>
+            {content.keyPhrases.map((p, i) => <Tag key={i} color="orange">{p}</Tag>)}
+          </Space>
+        </div>
+      )}
+      {options && options.length > 0 && (
+        <div style={{ marginTop: 8 }}>
+          <div style={{ fontWeight: 'bold', marginBottom: 4 }}>选项：</div>
+          {options.map(opt => (
+            <div key={opt.label} style={{ marginBottom: 2 }}>
+              <Tag>{opt.label}</Tag> {opt.text}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function WrongBookPage() {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<'review' | 'manage'>('review');
@@ -444,27 +534,28 @@ export default function WrongBookPage() {
                 <Tag>错误 {current.wrongCount}次</Tag>
               </div>
 
-              <div style={{ fontSize: 16, lineHeight: 1.8, marginBottom: 16 }}>
-                {current.question.content}
+              <div style={{ marginBottom: 16 }}>
+                {renderQuestionBody(current.question)}
               </div>
 
-              {current.question.options && (
-                <div style={{ marginBottom: 16 }}>
-                  <Radio.Group
-                    value={selectedRating}
-                    onChange={(e) => setSelectedRating(e.target.value)}
-                  >
-                    <Space direction="vertical">
-                      {Object.entries(RATING_MAP).map(([rating, info]) => (
-                        <Radio key={rating} value={Number(rating)}>
-                          <Tag color={info.color}>{info.label}</Tag>
-                          <span style={{ color: '#999' }}>{info.description}</span>
-                        </Radio>
-                      ))}
-                    </Space>
-                  </Radio.Group>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ marginBottom: 8, color: '#999' }}>
+                  根据掌握程度自评（FSRS 算法将据此安排下次复习）：
                 </div>
-              )}
+                <Radio.Group
+                  value={selectedRating}
+                  onChange={(e) => setSelectedRating(e.target.value)}
+                >
+                  <Space direction="vertical">
+                    {Object.entries(RATING_MAP).map(([rating, info]) => (
+                      <Radio key={rating} value={Number(rating)}>
+                        <Tag color={info.color}>{info.label}</Tag>
+                        <span style={{ color: '#999' }}>{info.description}</span>
+                      </Radio>
+                    ))}
+                  </Space>
+                </Radio.Group>
+              </div>
 
               <Space>
                 <Button
@@ -573,10 +664,16 @@ export default function WrongBookPage() {
             expandable={{
               expandedRowRender: (record) => (
                 <div style={{ padding: 8 }}>
-                  <p><strong>题目：</strong>{record.question.content.substring(0, 150)}...</p>
-                  {record.question.options && <p><strong>选项：</strong>{record.question.options}</p>}
-                  <p><strong>正确答案：</strong>{record.question.correctAnswer}</p>
-                  {record.question.explanation && <p><strong>解析：</strong>{record.question.explanation}</p>}
+                  {renderQuestionBody(record.question)}
+                  <div style={{ marginTop: 8 }}>
+                    <strong>正确答案：</strong>
+                    <Tag color="green">{record.question.correctAnswer}</Tag>
+                  </div>
+                  {record.question.explanation && (
+                    <div style={{ marginTop: 4, color: '#999' }}>
+                      <strong>解析：</strong>{record.question.explanation}
+                    </div>
+                  )}
                 </div>
               ),
             }}

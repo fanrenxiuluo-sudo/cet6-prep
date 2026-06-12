@@ -3,21 +3,16 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, Row, Col, Statistic, Spin, Empty, Tabs, Select } from 'antd';
+import { Card, Row, Col, Statistic, Spin, Tabs } from 'antd';
 import {
   TrophyOutlined,
   BookOutlined,
   ClockCircleOutlined,
   FireOutlined,
   CheckCircleOutlined,
-  LineChartOutlined,
-  PieChartOutlined,
-  HeatMapOutlined,
 } from '@ant-design/icons';
 import ReactECharts from 'echarts-for-react';
 import dayjs from 'dayjs';
-
-const { TabPane } = Tabs;
 
 interface ComprehensiveStats {
   overview: {
@@ -400,46 +395,65 @@ export default function StatsPage() {
       </Row>
 
       {/* 图表 */}
-      <Tabs defaultActiveKey="trend">
-        <TabPane tab="学习趋势" key="trend">
-          <Card>
-            <ReactECharts option={trendOption} style={{ height: 400 }} />
-          </Card>
-        </TabPane>
-
-        <TabPane tab="分项正确率" key="radar">
-          <Card>
-            <ReactECharts option={radarOption} style={{ height: 400 }} />
-          </Card>
-        </TabPane>
-
-        <TabPane tab="难度分布" key="difficulty">
-          <Row gutter={16}>
-            <Col span={12}>
-              <Card title="题目难度分布">
-                <ReactECharts option={difficultyOption} style={{ height: 400 }} />
+      <Tabs
+        defaultActiveKey="trend"
+        items={[
+          {
+            key: 'trend',
+            label: '学习趋势',
+            children: (
+              <Card>
+                <ReactECharts option={trendOption} style={{ height: 400 }} />
               </Card>
-            </Col>
-            <Col span={12}>
-              <Card title="答题时间分布">
-                <ReactECharts option={timeOption} style={{ height: 400 }} />
+            ),
+          },
+          {
+            key: 'radar',
+            label: '分项正确率',
+            children: (
+              <Card>
+                <ReactECharts option={radarOption} style={{ height: 400 }} />
               </Card>
-            </Col>
-          </Row>
-        </TabPane>
-
-        <TabPane tab="掌握进度" key="mastery">
-          <Card>
-            <ReactECharts option={masteryOption} style={{ height: 400 }} />
-          </Card>
-        </TabPane>
-
-        <TabPane tab="错题趋势" key="wrongTrend">
-          <Card>
-            <ReactECharts option={wrongTrendOption} style={{ height: 400 }} />
-          </Card>
-        </TabPane>
-      </Tabs>
+            ),
+          },
+          {
+            key: 'difficulty',
+            label: '难度分布',
+            children: (
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Card title="题目难度分布">
+                    <ReactECharts option={difficultyOption} style={{ height: 400 }} />
+                  </Card>
+                </Col>
+                <Col span={12}>
+                  <Card title="答题时间分布">
+                    <ReactECharts option={timeOption} style={{ height: 400 }} />
+                  </Card>
+                </Col>
+              </Row>
+            ),
+          },
+          {
+            key: 'mastery',
+            label: '掌握进度',
+            children: (
+              <Card>
+                <ReactECharts option={masteryOption} style={{ height: 400 }} />
+              </Card>
+            ),
+          },
+          {
+            key: 'wrongTrend',
+            label: '错题趋势',
+            children: (
+              <Card>
+                <ReactECharts option={wrongTrendOption} style={{ height: 400 }} />
+              </Card>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 }

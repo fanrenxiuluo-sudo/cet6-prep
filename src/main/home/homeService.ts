@@ -50,6 +50,16 @@ export async function getTodayTasks(
   const todayEnd = new Date(now);
   todayEnd.setDate(todayEnd.getDate() + 1);
 
+  // 读取用户每日目标设置
+  const goalSetting = await prisma.userSetting.findUnique({ where: { key: 'dailyGoal' } }).catch(() => null);
+  let dailyGoal = 20;
+  try {
+    if (goalSetting) {
+      const v = JSON.parse(goalSetting.value);
+      if (typeof v === 'number' && v > 0) dailyGoal = v;
+    }
+  } catch { /* ignore */ }
+
   // 1. 待复习错题（未掌握的）
   const dueWrong = await prisma.wrongQuestion.count({
     where: {
@@ -79,54 +89,42 @@ export async function getTodayTasks(
     tasks.push({
       type: 'practice',
       title: '开始今日练习',
-      description: '今天还没有练习，来做一组练习吧',
+      description: `今天还没有练习，今日目标 ${dailyGoal} 题`,
       count: 0,
       action: '开始练习',
       priority: 'high',
     });
-  } else if (todayPracticed < 20) {
+  } else if (todayPracticed < dailyGoal) {
     tasks.push({
       type: 'practice',
       title: '继续练习',
-      description: `今天已练习 ${todayPracticed} 题，再做几题？`,
+      description: `今天已练习 ${todayPracticed}/${dailyGoal} 题，再做几题？`,
       count: todayPracticed,
       action: '继续',
       priority: 'medium',
     });
   }
 
-  // 3. 分项练习建议
-  const studyRecords = await prisma.studyRecord.findMany({
-    select: {
-      questionId: true,
-      isCorrect: true,
-    },
+  // 3. 分项练习建议 — Bug #16 优化：只拉最近 500 条 + 用 include 一次查到 section，避免整表 + N+1
+  const recentForSection = await prisma.studyRecord.findMany({
+    select: { isCorrect: true, question: { select: { section: true } } },
+    orderBy: { studiedAt: 'desc' },
+    take: 500,
   });
 
-  // 获取每个 questionId 对应的 section
-  const questionIds = Array.from(new Set(studyRecords.map(s => s.questionId)));
-  const questions = await prisma.question.findMany({
-    where: { id: { in: questionIds } },
-    select: { id: true, section: true },
-  });
-
-  const sectionMap = new Map(questions.map(q => [q.id, q.section]));
   const sectionAccuracy = new Map<string, { total: number; correct: number }>();
-
-  for (const record of studyRecords) {
-    const section = sectionMap.get(record.questionId) || 'UNKNOWN';
-    const existing = sectionAccuracy.get(section) || { total: 0, correct: 0 };
-    existing.total++;
-    if (record.isCorrect) existing.correct++;
-    sectionAccuracy.set(section, existing);
+  for (const r of recentForSection as Array<{ isCorrect: boolean; question: { section: string } | null }>) {
+    const section = r.question?.section || 'UNKNOWN';
+    const e = sectionAccuracy.get(section) || { total: 0, correct: 0 };
+    e.total++;
+    if (r.isCorrect) e.correct++;
+    sectionAccuracy.set(section, e);
   }
 
-  // 找出最弱的分项
   let weakestSection = '';
   let lowestAccuracy = 1;
-
   for (const [section, data] of sectionAccuracy) {
-    if (data.total >= 3) { // 至少练习3题才有参考价值
+    if (data.total >= 3) {
       const accuracy = data.correct / data.total;
       if (accuracy < lowestAccuracy) {
         lowestAccuracy = accuracy;
@@ -206,28 +204,26 @@ export async function getQuickStats(
   // 错题总数
   const wrongCount = await prisma.wrongQuestion.count();
 
-  // 连续学习天数
+  // 连续学习天数 — 单次查询所有日期再在内存中算连续
+  // 仅取最近 365 天数据即可（避免读全表）
+  const oneYearAgo = new Date(todayStart);
+  oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+  const recentDayRecords = await prisma.studyRecord.findMany({
+    where: { studiedAt: { gte: oneYearAgo } },
+    select: { studiedAt: true },
+    orderBy: { studiedAt: 'desc' },
+  });
+  const daySet = new Set<string>(recentDayRecords.map((r: { studiedAt: Date }) => r.studiedAt.toISOString().split('T')[0]));
+
   let streakDays = 0;
-  const checkDate = new Date(todayStart);
-
-  for (;;) {
-    const dayStart = new Date(checkDate);
-    dayStart.setHours(0, 0, 0, 0);
-    const dayEnd = new Date(checkDate);
-    dayEnd.setDate(dayEnd.getDate() + 1);
-
-    const dayRecords = await prisma.studyRecord.count({
-      where: {
-        studiedAt: { gte: dayStart, lt: dayEnd },
-      },
-    });
-
-    if (dayRecords > 0) {
-      streakDays++;
-      checkDate.setDate(checkDate.getDate() - 1);
-    } else {
-      break;
-    }
+  const cursor = new Date(todayStart);
+  // 若今天没学也允许从昨天往前算
+  if (!daySet.has(cursor.toISOString().split('T')[0])) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  while (daySet.has(cursor.toISOString().split('T')[0])) {
+    streakDays++;
+    cursor.setDate(cursor.getDate() - 1);
   }
 
   return {

@@ -24,6 +24,7 @@ import SettingsPage from './pages/SettingsPage';
 import ScraperPage from './pages/ScraperPage';
 import GamificationPage from './pages/GamificationPage';
 import useThemeStore from './stores/useThemeStore';
+import { useAppSettingsStore } from './stores/useAppSettingsStore';
 
 const { Content, Sider } = Layout;
 
@@ -54,6 +55,7 @@ const AppLayout: React.FC = () => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const themeMode = useThemeStore((s) => s.theme);
+  const fontSize = useAppSettingsStore((s) => s.settings.fontSize);
 
   const resolvedTheme = themeMode === 'system' ? getSystemTheme() : themeMode;
   const isDark = resolvedTheme === 'dark';
@@ -61,6 +63,7 @@ const AppLayout: React.FC = () => {
   useEffect(() => {
     window.api.settingsGet().then((settings) => {
       useThemeStore.getState().setTheme(settings.theme);
+      useAppSettingsStore.getState().replaceSettings(settings);
     });
   }, []);
 
@@ -81,6 +84,13 @@ const AppLayout: React.FC = () => {
     document.body.style.color = fg;
   }, [isDark]);
 
+  // 全局应用字体大小：通过 root font-size 让 antd / 自定义文本一致放大
+  useEffect(() => {
+    const size = Math.max(12, Math.min(24, fontSize || 14));
+    document.documentElement.style.fontSize = `${size}px`;
+    document.body.style.fontSize = `${size}px`;
+  }, [fontSize]);
+
   return (
     <ConfigProvider
       locale={zhCN}
@@ -89,7 +99,7 @@ const AppLayout: React.FC = () => {
         token: {
           colorPrimary: '#1677ff',
           borderRadius: 8,
-          fontSize: 14,
+          fontSize: Math.max(12, Math.min(24, fontSize || 14)),
         },
         components: {
           Layout: {

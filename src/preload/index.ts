@@ -76,6 +76,11 @@ contextBridge.exposeInMainWorld('api', {
   // App
   appVersion: () => ipcRenderer.invoke('app:version'),
   appQuit: () => ipcRenderer.invoke('app:quit'),
+
+  // Dialog
+  dialogOpenDirectory: () => ipcRenderer.invoke('dialog:openDirectory'),
+  dialogOpenFile: (options?: { filters?: Array<{ name: string; extensions: string[] }> }) =>
+    ipcRenderer.invoke('dialog:openFile', options),
 });
 
 export type CET6API = typeof contextBridge;
