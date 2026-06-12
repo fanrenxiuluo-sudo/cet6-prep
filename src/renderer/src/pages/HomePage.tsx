@@ -10,7 +10,6 @@ import {
   AlertOutlined,
   RightOutlined,
   ImportOutlined,
-  CloseCircleOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
@@ -109,7 +108,7 @@ export default function HomePage() {
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 24 }}>
         <h2 style={{ margin: 0 }}>
-          {getGreeting()}\uFF0C\u51C6\u5907\u5F00\u59CB\u5B66\u4E60\u4E86\u5417\uFF1F
+          {getGreeting()}，准备开始学习了吗？
         </h2>
         <p style={{ color: '#8c8c8c', margin: '8px 0 0' }}>
           {new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}
@@ -120,7 +119,7 @@ export default function HomePage() {
         <Col span={4}>
           <Card>
             <Statistic
-              title="\u9898\u5E93\u603B\u91CF"
+              title="题库总量"
               value={data.stats.totalQuestions}
               prefix={<BookOutlined />}
             />
@@ -129,7 +128,7 @@ export default function HomePage() {
         <Col span={4}>
           <Card>
             <Statistic
-              title="\u4ECA\u65E5\u5DF2\u7EC3"
+              title="今日已练"
               value={data.stats.todayPracticed}
               prefix={<CheckCircleOutlined />}
               valueStyle={{ color: data.stats.todayPracticed > 0 ? '#3f8600' : undefined }}
@@ -139,7 +138,7 @@ export default function HomePage() {
         <Col span={4}>
           <Card>
             <Statistic
-              title="\u6B63\u786E\u7387"
+              title="正确率"
               value={data.stats.accuracy * 100}
               precision={1}
               suffix="%"
@@ -151,9 +150,9 @@ export default function HomePage() {
         <Col span={4}>
           <Card>
             <Statistic
-              title="\u8FDE\u7EED\u5B66\u4E60"
+              title="连续学习"
               value={data.stats.streakDays}
-              suffix="\u5929"
+              suffix="天"
               prefix={<FireOutlined />}
               valueStyle={{ color: data.stats.streakDays > 0 ? '#cf1322' : undefined }}
             />
@@ -162,7 +161,7 @@ export default function HomePage() {
         <Col span={4}>
           <Card>
             <Statistic
-              title="\u5F85\u590D\u4E60"
+              title="待复习"
               value={data.stats.dueForReview}
               prefix={<ClockCircleOutlined />}
               valueStyle={{ color: data.stats.dueForReview > 0 ? '#cf1322' : undefined }}
@@ -172,7 +171,7 @@ export default function HomePage() {
         <Col span={4}>
           <Card>
             <Statistic
-              title="\u9519\u9898\u603B\u6570"
+              title="错题总数"
               value={data.stats.wrongCount}
               prefix={<AlertOutlined />}
               valueStyle={{ color: data.stats.wrongCount > 0 ? '#faad14' : undefined }}
@@ -183,7 +182,7 @@ export default function HomePage() {
 
       <Row gutter={[16, 16]}>
         <Col span={16}>
-          <Card title="\u4ECA\u65E5\u4EFB\u52A1" extra={<a onClick={() => navigate('/practice')}>\u67E5\u770B\u5168\u90E8</a>}>
+          <Card title="今日任务" extra={<a onClick={() => navigate('/practice')}>查看全部</a>}>
             {data.tasks.length > 0 ? (
               <List
                 dataSource={data.tasks}
@@ -222,7 +221,7 @@ export default function HomePage() {
                         <Space>
                           {task.title}
                           <Tag color={PRIORITY_COLOR[task.priority]}>
-                            {task.priority === 'high' ? '\u91CD\u8981' : task.priority === 'medium' ? '\u5EFA\u8BAE' : '\u53EF\u9009'}
+                            {task.priority === 'high' ? '重要' : task.priority === 'medium' ? '建议' : '可选'}
                           </Tag>
                         </Space>
                       }
@@ -232,13 +231,13 @@ export default function HomePage() {
                 )}
               />
             ) : (
-              <Empty description="\u4ECA\u65E5\u4EFB\u52A1\u5DF2\u5B8C\u6210" />
+              <Empty description="今日任务已完成" />
             )}
           </Card>
         </Col>
 
         <Col span={8}>
-          <Card title="\u6700\u8FD1\u6D3B\u52A8" extra={<a onClick={() => navigate('/review')}>\u67E5\u770B\u5168\u90E8</a>}>
+          <Card title="最近活动" extra={<a onClick={() => navigate('/review')}>查看全部</a>}>
             {data.recentActivity.length > 0 ? (
               <List
                 dataSource={data.recentActivity.slice(0, 5)}
@@ -250,19 +249,19 @@ export default function HomePage() {
                           width: 32,
                           height: 32,
                           borderRadius: '50%',
-                          background: activity.description === '\u56DE\u7B54\u6B63\u786E' ? '#52c41a20' : '#ff4d4f20',
+                          background: activity.description === '回答正确' ? '#52c41a20' : '#ff4d4f20',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          color: activity.description === '\u56DE\u7B54\u6B63\u786E' ? '#52c41a' : '#ff4d4f',
+                          color: activity.description === '回答正确' ? '#52c41a' : '#ff4d4f',
                         }}>
-                          {activity.description === '\u56DE\u7B54\u6B63\u786E' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+                          {activity.description === '回答正确' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
                         </div>
                       }
                       title={activity.title}
                       description={
                         <Space>
-                          <span style={{ color: activity.description === '\u56DE\u7B54\u6B63\u786E' ? '#52c41a' : '#ff4d4f' }}>
+                          <span style={{ color: activity.description === '回答正确' ? '#52c41a' : '#ff4d4f' }}>
                             {activity.description}
                           </span>
                         </Space>
@@ -272,13 +271,13 @@ export default function HomePage() {
                 )}
               />
             ) : (
-              <Empty description="\u6682\u65E0\u6D3B\u52A8\u8BB0\u5F55" />
+              <Empty description="暂无活动记录" />
             )}
           </Card>
         </Col>
       </Row>
 
-      <Card title="\u5FEB\u6377\u5165\u53E3" style={{ marginTop: 16 }}>
+      <Card title="快捷入口" style={{ marginTop: 16 }}>
         <Row gutter={[16, 16]}>
           <Col span={6}>
             <Button
@@ -287,7 +286,7 @@ export default function HomePage() {
               icon={<BookOutlined />}
               onClick={() => navigate('/practice')}
             >
-              \u5F00\u59CB\u7EC3\u4E60
+              开始练习
             </Button>
           </Col>
           <Col span={6}>
@@ -298,7 +297,7 @@ export default function HomePage() {
               onClick={() => navigate('/wrongbook')}
               danger={data.stats.dueForReview > 0}
             >
-              \u9519\u9898\u590D\u4E60 {data.stats.dueForReview > 0 && `(${data.stats.dueForReview})`}
+              错题复习 {data.stats.dueForReview > 0 && `(${data.stats.dueForReview})`}
             </Button>
           </Col>
           <Col span={6}>
@@ -308,7 +307,7 @@ export default function HomePage() {
               icon={<TrophyOutlined />}
               onClick={() => navigate('/stats')}
             >
-              \u67E5\u770B\u7EDF\u8BA1
+              查看统计
             </Button>
           </Col>
           <Col span={6}>
@@ -318,7 +317,7 @@ export default function HomePage() {
               icon={<ImportOutlined />}
               onClick={() => navigate('/bank')}
             >
-              \u5BFC\u5165\u9898\u76EE
+              导入题目
             </Button>
           </Col>
         </Row>
@@ -329,11 +328,11 @@ export default function HomePage() {
 
 function getGreeting(): string {
   const hour = new Date().getHours();
-  if (hour < 6) return '\u591C\u6DF1\u4E86';
-  if (hour < 9) return '\u65E9\u4E0A\u597D';
-  if (hour < 12) return '\u4E0A\u5348\u597D';
-  if (hour < 14) return '\u4E2D\u5348\u597D';
-  if (hour < 18) return '\u4E0B\u5348\u597D';
-  if (hour < 22) return '\u665A\u4E0A\u597D';
-  return '\u591C\u6DF1\u4E86';
+  if (hour < 6) return '夜深了';
+  if (hour < 9) return '早上好';
+  if (hour < 12) return '上午好';
+  if (hour < 14) return '中午好';
+  if (hour < 18) return '下午好';
+  if (hour < 22) return '晚上好';
+  return '夜深了';
 }

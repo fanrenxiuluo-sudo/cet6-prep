@@ -122,7 +122,7 @@ const AppLayout: React.FC = () => {
               whiteSpace: 'nowrap',
               overflow: 'hidden',
             }}>
-              {collapsed ? 'C6' : '\uD83D\uDCDA CET6\u5907\u8003\u52A9\u624B'}
+              {collapsed ? 'C6' : '📚 CET6备考助手'}
             </div>
             <Menu
               theme={isDark ? 'dark' : 'light'}

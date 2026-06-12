@@ -36,20 +36,20 @@ interface PracticeState {
 }
 
 const SECTION_OPTIONS = [
-  { label: '\u5168\u90E8', value: '' },
-  { label: '\u542C\u529B', value: 'LISTENING' },
-  { label: '\u9605\u8BFB', value: 'READING' },
-  { label: '\u5199\u4F5C', value: 'WRITING' },
-  { label: '\u7FFB\u8BD1', value: 'TRANSLATION' },
+  { label: '全部', value: '' },
+  { label: '听力', value: 'LISTENING' },
+  { label: '阅读', value: 'READING' },
+  { label: '写作', value: 'WRITING' },
+  { label: '翻译', value: 'TRANSLATION' },
 ];
 
 const COUNT_OPTIONS = [5, 10, 15, 20];
 
 const DIFFICULTY_OPTIONS = [
-  { label: '\u5165\u95E8', value: 1, icon: <SafetyOutlined />, desc: '\u57FA\u7840\u9898\uFF0C\u9002\u5408\u96F6\u57FA\u7840\u7528\u6237' },
-  { label: '\u57FA\u7840', value: 2, icon: <BookOutlined />, desc: '\u6838\u5FC3\u77E5\u8BC6\u70B9\uFF0C\u9002\u5408\u521D\u5B66\u8005' },
-  { label: '\u8FDB\u9636', value: 3, icon: <ThunderboltOutlined />, desc: '\u7EFC\u5408\u5E94\u7528\uFF0C\u9002\u5408\u6709\u4E00\u5B9A\u57FA\u7840\u7684\u7528\u6237' },
-  { label: '\u4E0D\u9650', value: 0, icon: <ClockCircleOutlined />, desc: '\u968F\u673A\u62BD\u53D6\u6240\u6709\u96BE\u5EA6' },
+  { label: '入门', value: 1, icon: <SafetyOutlined />, desc: '基础题，适合零基础用户' },
+  { label: '基础', value: 2, icon: <BookOutlined />, desc: '核心知识点，适合初学者' },
+  { label: '进阶', value: 3, icon: <ThunderboltOutlined />, desc: '综合应用，适合有一定基础的用户' },
+  { label: '不限', value: 0, icon: <ClockCircleOutlined />, desc: '随机抽取所有难度' },
 ];
 
 const PracticePage: React.FC = () => {
@@ -112,7 +112,7 @@ const PracticePage: React.FC = () => {
 
       const first = await window.api.practiceQuestion(session.sessionId);
       if (!first?.question) {
-        message.warning('\u6CA1\u6709\u7B26\u5408\u6761\u4EF6\u7684\u9898\u76EE');
+        message.warning('没有符合条件的题目');
         setState(prev => ({ ...prev, loading: false }));
         return;
       }
@@ -141,7 +141,7 @@ const PracticePage: React.FC = () => {
         startTimer();
       }
     } catch (err) {
-      message.error('\u5F00\u59CB\u7EC3\u4E60\u5931\u8D25: ' + (err as Error).message);
+      message.error('开始练习失败: ' + (err as Error).message);
       setState(prev => ({ ...prev, loading: false }));
     }
   };
@@ -149,7 +149,7 @@ const PracticePage: React.FC = () => {
   const handleSubmit = async () => {
     if (!state.sessionId || !state.currentQuestion) return;
     if (!userAnswer.trim() && !state.currentQuestion.options) {
-      message.warning('\u8BF7\u5148\u4F5C\u7B54');
+      message.warning('请先作答');
       return;
     }
 
@@ -179,7 +179,7 @@ const PracticePage: React.FC = () => {
         }],
       }));
     } catch (err) {
-      message.error('\u63D0\u4EA4\u5931\u8D25');
+      message.error('提交失败');
       if (practiceMode === 'exam') {
         startTimer();
       }
@@ -219,7 +219,7 @@ const PracticePage: React.FC = () => {
         startTimer();
       }
     } catch (err) {
-      message.error('\u52A0\u8F7D\u4E0B\u4E00\u9898\u5931\u8D25');
+      message.error('加载下一题失败');
     }
   };
 
@@ -246,7 +246,7 @@ const PracticePage: React.FC = () => {
       <>
         {(content.passage || content.stem) && (
           <Card
-            title={content.passage ? '\u6587\u7AE0\u539F\u6587' : '\u9898\u76EE'}
+            title={content.passage ? '文章原文' : '题目'}
             style={{ marginBottom: 16 }}
           >
             {content.passage && (
@@ -288,7 +288,7 @@ const PracticePage: React.FC = () => {
             )}
             {content.wordBank && (
               <div style={{ marginTop: 12 }}>
-                <Text strong>\u8BCD\u5E93\uFF1A</Text>
+                <Text strong>词库：</Text>
                 <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {(content.wordBank as string[]).map((word: string, i: number) => (
                     <Tag key={i} color="blue" style={{ fontSize: 14, padding: '4px 12px' }}>
@@ -300,7 +300,7 @@ const PracticePage: React.FC = () => {
             )}
             {content.blanks && (
               <div style={{ marginTop: 12 }}>
-                <Text strong>\u586B\u7A7A\u4F4D\u7F6E\uFF1A</Text>
+                <Text strong>填空位置：</Text>
                 <Text> {JSON.stringify(content.blanks)}</Text>
               </div>
             )}
@@ -309,7 +309,7 @@ const PracticePage: React.FC = () => {
 
         {content.minWords && content.maxWords && (
           <Alert
-            message={`\u5B57\u6570\u8981\u6C42\uFF1A${content.minWords} - ${content.maxWords} \u8BCD`}
+            message={`字数要求：${content.minWords} - ${content.maxWords} 词`}
             type="info"
             showIcon
             style={{ marginBottom: 16 }}
@@ -317,7 +317,7 @@ const PracticePage: React.FC = () => {
         )}
 
         {content.keyPhrases && (
-          <Card title="\u5173\u952E\u8BCD\u7EC4\u63D0\u793A" size="small" style={{ marginBottom: 16 }}>
+          <Card title="关键词组提示" size="small" style={{ marginBottom: 16 }}>
             <Space wrap>
               {(content.keyPhrases as string[]).map((phrase: string, i: number) => (
                 <Tag key={i} color="orange">{phrase}</Tag>
@@ -326,7 +326,7 @@ const PracticePage: React.FC = () => {
           </Card>
         )}
 
-        <Card title="\u4F5C\u7B54" style={{ marginBottom: 16 }}>
+        <Card title="作答" style={{ marginBottom: 16 }}>
           {options ? (
             <Radio.Group
               value={userAnswer}
@@ -343,7 +343,7 @@ const PracticePage: React.FC = () => {
           ) : (
             <TextArea
               rows={q.questionType === 'TRANSLATION' || q.questionType === 'ESSAY' ? 6 : 3}
-              placeholder={q.questionType === 'TRANSLATION' ? '\u8F93\u5165\u4F60\u7684\u7FFB\u8BD1...' : q.questionType === 'ESSAY' ? '\u5728\u6B64\u5199\u4F5C\u6587...' : '\u8F93\u5165\u4F60\u7684\u7B54\u6848...'}
+              placeholder={q.questionType === 'TRANSLATION' ? '输入你的翻译...' : q.questionType === 'ESSAY' ? '在此写作文...' : '输入你的答案...'}
               value={userAnswer}
               onChange={(e) => setUserAnswer(e.target.value)}
               disabled={showFeedback}
@@ -354,13 +354,13 @@ const PracticePage: React.FC = () => {
         {practiceMode === 'learning' && !showFeedback && (
           <Space style={{ marginBottom: 16 }}>
             <Button onClick={() => setShowHint(!showHint)}>
-              {showHint ? '\u9690\u85CF\u63D0\u793A' : '\u663E\u793A\u63D0\u793A'}
+              {showHint ? '隐藏提示' : '显示提示'}
             </Button>
           </Space>
         )}
 
         {showHint && !showFeedback && q.explanation && (
-          <Card size="small" title="\u53C2\u8003\u63D0\u793A" style={{ marginBottom: 16, borderLeft: '3px solid #faad14' }}>
+          <Card size="small" title="参考提示" style={{ marginBottom: 16, borderLeft: '3px solid #faad14' }}>
             <Paragraph style={{ whiteSpace: 'pre-wrap' }}>{q.explanation}</Paragraph>
           </Card>
         )}
@@ -371,19 +371,19 @@ const PracticePage: React.FC = () => {
   if (state.phase === 'config') {
     return (
       <div style={{ padding: 24 }}>
-        <h2>\uD83D\uDCDD \u7EC3\u4E60</h2>
+        <h2>📝 练习</h2>
 
         <Row gutter={[24, 24]}>
           <Col span={14}>
-            <Card title="\u9009\u62E9\u7EC3\u4E60\u914D\u7F6E" style={{ marginBottom: 16 }}>
+            <Card title="选择练习配置" style={{ marginBottom: 16 }}>
               <Space direction="vertical" style={{ width: '100%' }} size="large">
                 <div>
-                  <Text strong style={{ fontSize: 15 }}>\u7EC3\u4E60\u6A21\u5F0F</Text>
+                  <Text strong style={{ fontSize: 15 }}>练习模式</Text>
                   <div style={{ marginTop: 8 }}>
                     <Segmented
                       options={[
-                        { label: <span><SafetyOutlined /> \u5B66\u4E60\u6A21\u5F0F</span>, value: 'learning' },
-                        { label: <span><ThunderboltOutlined /> \u8003\u8BD5\u6A21\u5F0F</span>, value: 'exam' },
+                        { label: <span><SafetyOutlined /> 学习模式</span>, value: 'learning' },
+                        { label: <span><ThunderboltOutlined /> 考试模式</span>, value: 'exam' },
                       ]}
                       value={practiceMode}
                       onChange={(v) => setPracticeMode(v as 'learning' | 'exam')}
@@ -392,13 +392,13 @@ const PracticePage: React.FC = () => {
                   </div>
                   <div style={{ marginTop: 8, color: '#8c8c8c', fontSize: 13 }}>
                     {practiceMode === 'learning'
-                      ? '\u5B66\u4E60\u6A21\u5F0F\uFF1A\u4E0D\u8BA1\u65F6\uFF0C\u53EF\u67E5\u770B\u63D0\u793A\uFF0C\u9002\u5408\u96F6\u57FA\u7840\u7528\u6237'
-                      : '\u8003\u8BD5\u6A21\u5F0F\uFF1A\u8BA1\u65F6\u505A\u9898\uFF0C\u65E0\u63D0\u793A\uFF0C\u6A21\u62DF\u771F\u5B9E\u8003\u573A'}
+                      ? '学习模式：不计时，可查看提示，适合零基础用户'
+                      : '考试模式：计时做题，无提示，模拟真实考场'}
                   </div>
                 </div>
 
                 <div>
-                  <Text strong style={{ fontSize: 15 }}>\u8003\u8BD5\u677F\u5757</Text>
+                  <Text strong style={{ fontSize: 15 }}>考试板块</Text>
                   <Radio.Group
                     options={SECTION_OPTIONS}
                     value={section}
@@ -410,7 +410,7 @@ const PracticePage: React.FC = () => {
                 </div>
 
                 <div>
-                  <Text strong style={{ fontSize: 15 }}>\u96BE\u5EA6\u7EA7\u522B</Text>
+                  <Text strong style={{ fontSize: 15 }}>难度级别</Text>
                   <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                     {DIFFICULTY_OPTIONS.map((opt) => (
                       <Card
@@ -437,7 +437,7 @@ const PracticePage: React.FC = () => {
                 </div>
 
                 <div>
-                  <Text strong style={{ fontSize: 15 }}>\u9898\u76EE\u6570\u91CF</Text>
+                  <Text strong style={{ fontSize: 15 }}>题目数量</Text>
                   <Space style={{ marginTop: 8 }}>
                     {COUNT_OPTIONS.map(c => (
                       <Button
@@ -445,7 +445,7 @@ const PracticePage: React.FC = () => {
                         type={count === c ? 'primary' : 'default'}
                         onClick={() => setCount(c)}
                       >
-                        {c} \u9898
+                        {c} 题
                       </Button>
                     ))}
                   </Space>
@@ -458,39 +458,39 @@ const PracticePage: React.FC = () => {
                   loading={state.loading}
                   onClick={handleStart}
                 >
-                  \u5F00\u59CB\u7EC3\u4E60
+                  开始练习
                 </Button>
               </Space>
             </Card>
           </Col>
 
           <Col span={10}>
-            <Card title="\u7EC3\u4E60\u8BF4\u660E" style={{ marginBottom: 16 }}>
+            <Card title="练习说明" style={{ marginBottom: 16 }}>
               <Space direction="vertical" style={{ width: '100%' }}>
                 <div>
-                  <Text strong style={{ color: '#1677ff' }}><SafetyOutlined /> \u5B66\u4E60\u6A21\u5F0F</Text>
+                  <Text strong style={{ color: '#1677ff' }}><SafetyOutlined /> 学习模式</Text>
                   <ul style={{ margin: '8px 0', paddingLeft: 20, fontSize: 13 }}>
-                    <li>\u4E0D\u8BA1\u65F6\uFF0C\u8F7B\u677E\u5B66\u4E60</li>
-                    <li>\u53EF\u968F\u65F6\u67E5\u770B\u53C2\u8003\u63D0\u793A</li>
-                    <li>\u9002\u5408\u96F6\u57FA\u7840\u6216\u521D\u5B66\u8005</li>
-                    <li>\u5EFA\u8BAE\u4ECE\u201C\u5165\u95E8\u201D\u96BE\u5EA6\u5F00\u59CB</li>
+                    <li>不计时，轻松学习</li>
+                    <li>可随时查看参考提示</li>
+                    <li>适合零基础或初学者</li>
+                    <li>建议从“入门”难度开始</li>
                   </ul>
                 </div>
                 <div>
-                  <Text strong style={{ color: '#ff4d4f' }}><ThunderboltOutlined /> \u8003\u8BD5\u6A21\u5F0F</Text>
+                  <Text strong style={{ color: '#ff4d4f' }}><ThunderboltOutlined /> 考试模式</Text>
                   <ul style={{ margin: '8px 0', paddingLeft: 20, fontSize: 13 }}>
-                    <li>\u8BA1\u65F6\u505A\u9898\uFF0C\u6A21\u62DF\u771F\u5B9E\u8003\u573A</li>
-                    <li>\u4E0D\u63D0\u4F9B\u63D0\u793A</li>
-                    <li>\u9002\u5408\u6709\u57FA\u7840\u7684\u7528\u6237</li>
-                    <li>\u63A8\u8350\u9009\u62E9\u201C\u8FDB\u9636\u201D\u6216\u201C\u4E0D\u9650\u201D\u96BE\u5EA6</li>
+                    <li>计时做题，模拟真实考场</li>
+                    <li>不提供提示</li>
+                    <li>适合有基础的用户</li>
+                    <li>推荐选择“进阶”或“不限”难度</li>
                   </ul>
                 </div>
                 <div>
-                  <Text strong>\u96BE\u5EA6\u7B49\u7EA7\u8BF4\u660E</Text>
+                  <Text strong>难度等级说明</Text>
                   <ul style={{ margin: '8px 0', paddingLeft: 20, fontSize: 13 }}>
-                    <li>\u2605 \u5165\u95E8\uFF081\u7EA7\uFF09\uFF1A\u57FA\u7840\u8BCD\u6C47\u4E0E\u53E5\u578B</li>
-                    <li>\u2605\u2605 \u57FA\u7840\uFF082\u7EA7\uFF09\uFF1A\u6838\u5FC3\u77E5\u8BC6\u70B9\u7406\u89E3</li>
-                    <li>\u2605\u2605\u2605 \u8FDB\u9636\uFF083\u7EA7\uFF09\uFF1A\u7EFC\u5408\u5E94\u7528\u4E0E\u63A8\u7406</li>
+                    <li>★ 入门（1级）：基础词汇与句型</li>
+                    <li>★★ 基础（2级）：核心知识点理解</li>
+                    <li>★★★ 进阶（3级）：综合应用与推理</li>
                   </ul>
                 </div>
               </Space>
@@ -512,9 +512,9 @@ const PracticePage: React.FC = () => {
             <Tag color="blue">{state.currentIndex + 1} / {state.questions.length}</Tag>
             <Tag>{QUESTION_TYPE_LABELS[q.questionType] || q.questionType}</Tag>
             <Tag color={SECTION_COLORS[q.section] || 'default'}>{SECTION_LABELS[q.section] || q.section}</Tag>
-            <Tag>\u96BE\u5EA6 {q.difficulty}/5</Tag>
+            <Tag>难度 {q.difficulty}/5</Tag>
             <Tag color={practiceMode === 'learning' ? 'green' : 'red'}>
-              {practiceMode === 'learning' ? '\u5B66\u4E60' : '\u8003\u8BD5'}
+              {practiceMode === 'learning' ? '学习' : '考试'}
             </Tag>
           </Space>
           {practiceMode === 'exam' && (
@@ -532,15 +532,15 @@ const PracticePage: React.FC = () => {
           <Card
             style={{ marginBottom: 16, border: lastResult.isCorrect ? '1px solid #52c41a' : '1px solid #ff4d4f' }}
             title={lastResult.isCorrect
-              ? <Text style={{ color: '#52c41a' }}><CheckCircleOutlined /> \u56DE\u7B54\u6B63\u786E\uFF01</Text>
-              : <Text style={{ color: '#ff4d4f' }}><CloseCircleOutlined /> \u56DE\u7B54\u9519\u8BEF</Text>
+              ? <Text style={{ color: '#52c41a' }}><CheckCircleOutlined /> 回答正确！</Text>
+              : <Text style={{ color: '#ff4d4f' }}><CloseCircleOutlined /> 回答错误</Text>
             }
           >
-            <Text strong>\u6B63\u786E\u7B54\u6848\uFF1A</Text>
+            <Text strong>正确答案：</Text>
             <Paragraph style={{ whiteSpace: 'pre-wrap' }}>{lastResult.correctAnswer}</Paragraph>
             {q.explanation && (
               <>
-                <Text strong>\u89E3\u6790\uFF1A</Text>
+                <Text strong>解析：</Text>
                 <Paragraph style={{ whiteSpace: 'pre-wrap' }}>{q.explanation}</Paragraph>
               </>
             )}
@@ -550,11 +550,11 @@ const PracticePage: React.FC = () => {
         <div style={{ marginTop: 16, textAlign: 'right' }}>
           {!showFeedback ? (
             <Button type="primary" size="large" onClick={handleSubmit}>
-              \u63D0\u4EA4\u7B54\u6848
+              提交答案
             </Button>
           ) : (
             <Button type="primary" size="large" icon={<ArrowRightOutlined />} onClick={handleNext}>
-              {state.currentIndex + 1 >= state.questions.length ? '\u67E5\u770B\u7ED3\u679C' : '\u4E0B\u4E00\u9898'}
+              {state.currentIndex + 1 >= state.questions.length ? '查看结果' : '下一题'}
             </Button>
           )}
         </div>
@@ -569,33 +569,33 @@ const PracticePage: React.FC = () => {
 
     return (
       <div style={{ padding: 24, maxWidth: 700, margin: '0 auto' }}>
-        <h2>\uD83C\uDF89 \u7EC3\u4E60\u5B8C\u6210</h2>
+        <h2>🎉 练习完成</h2>
         <Card>
           <Row gutter={16} style={{ textAlign: 'center' }}>
             <Col span={8}>
-              <Statistic title="\u603B\u9898\u6570" value={total} />
+              <Statistic title="总题数" value={total} />
             </Col>
             <Col span={8}>
-              <Statistic title="\u6B63\u786E\u6570" value={correctCount} valueStyle={{ color: '#52c41a' }} />
+              <Statistic title="正确数" value={correctCount} valueStyle={{ color: '#52c41a' }} />
             </Col>
             <Col span={8}>
-              <Statistic title="\u6B63\u786E\u7387" value={accuracy} suffix="%" valueStyle={{ color: accuracy >= 60 ? '#52c41a' : '#ff4d4f' }} />
+              <Statistic title="正确率" value={accuracy} suffix="%" valueStyle={{ color: accuracy >= 60 ? '#52c41a' : '#ff4d4f' }} />
             </Col>
           </Row>
           {state.timerMs > 0 && (
             <div style={{ textAlign: 'center', marginTop: 16 }}>
-              <Statistic title="\u603B\u7528\u65F6" value={formatTime(state.timerMs)} />
+              <Statistic title="总用时" value={formatTime(state.timerMs)} />
             </div>
           )}
         </Card>
 
         {state.results.filter(r => !r.isCorrect).length > 0 && (
-          <Card title="\u274C \u9519\u9898\u56DE\u987E" style={{ marginTop: 16 }}>
+          <Card title="❌ 错题回顾" style={{ marginTop: 16 }}>
             {state.results.filter(r => !r.isCorrect).map((r, i) => (
               <div key={i} style={{ marginBottom: 12, padding: 8, borderRadius: 6 }}>
-                <Text>\u4F60\u7684\u7B54\u6848\uFF1A<Text type="danger">{String(r.userAnswer)}</Text></Text>
+                <Text>你的答案：<Text type="danger">{String(r.userAnswer)}</Text></Text>
                 <br />
-                <Text>\u6B63\u786E\u7B54\u6848\uFF1A<Text style={{ color: '#52c41a' }}>{r.correctAnswer}</Text></Text>
+                <Text>正确答案：<Text style={{ color: '#52c41a' }}>{r.correctAnswer}</Text></Text>
               </div>
             ))}
           </Card>
@@ -606,7 +606,7 @@ const PracticePage: React.FC = () => {
           setUserAnswer('');
           setShowFeedback(false);
         }}>
-          \u518D\u6765\u4E00\u8F6E
+          再来一轮
         </Button>
       </div>
     );
@@ -616,19 +616,19 @@ const PracticePage: React.FC = () => {
 };
 
 const QUESTION_TYPE_LABELS: Record<string, string> = {
-  LISTENING_MCQ: '\u542C\u529B\u9009\u62E9',
-  BANKED_CLOZE: '\u9009\u8BCD\u586B\u7A7A',
-  CAREFUL_READING: '\u4ED4\u7EC6\u9605\u8BFB',
-  INFO_MATCHING: '\u4FE1\u606F\u5339\u914D',
-  ESSAY: '\u5199\u4F5C',
-  TRANSLATION: '\u7FFB\u8BD1',
+  LISTENING_MCQ: '听力选择',
+  BANKED_CLOZE: '选词填空',
+  CAREFUL_READING: '仔细阅读',
+  INFO_MATCHING: '信息匹配',
+  ESSAY: '写作',
+  TRANSLATION: '翻译',
 };
 
 const SECTION_LABELS: Record<string, string> = {
-  LISTENING: '\u542C\u529B',
-  READING: '\u9605\u8BFB',
-  WRITING: '\u5199\u4F5C',
-  TRANSLATION: '\u7FFB\u8BD1',
+  LISTENING: '听力',
+  READING: '阅读',
+  WRITING: '写作',
+  TRANSLATION: '翻译',
 };
 
 const SECTION_COLORS: Record<string, string> = {
