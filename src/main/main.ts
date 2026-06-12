@@ -10,7 +10,6 @@ if (started) {
   app.quit();
 }
 
-// 防止 GPU 进程崩溃导致应用闪退
 app.disableHardwareAcceleration();
 app.commandLine.appendSwitch('no-sandbox');
 app.commandLine.appendSwitch('disable-gpu');

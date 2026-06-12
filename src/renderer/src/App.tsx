@@ -73,6 +73,14 @@ const AppLayout: React.FC = () => {
     }
   }, [themeMode]);
 
+  useEffect(() => {
+    const bg = isDark ? '#141414' : '#f5f5f5';
+    const fg = isDark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.88)';
+    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+    document.body.style.backgroundColor = bg;
+    document.body.style.color = fg;
+  }, [isDark]);
+
   return (
     <ConfigProvider
       locale={zhCN}
@@ -95,7 +103,7 @@ const AppLayout: React.FC = () => {
       }}
     >
       <AntApp>
-        <Layout style={{ minHeight: '100vh' }}>
+        <Layout style={{ height: '100vh', overflow: 'hidden' }}>
           <Sider
             collapsible
             collapsed={collapsed}
@@ -133,7 +141,7 @@ const AppLayout: React.FC = () => {
             />
           </Sider>
           <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'margin-left 0.2s' }}>
-            <Content style={{ margin: 0, padding: 0, overflow: 'auto', minHeight: '100vh' }}>
+            <Content style={{ overflow: 'auto', height: '100vh' }}>
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/bank" element={<QuestionBankPage />} />

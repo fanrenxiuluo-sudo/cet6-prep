@@ -199,7 +199,12 @@ export default function SettingsPage() {
       >
         <Card title="显示设置" style={{ marginBottom: 16 }}>
           <Form.Item label="主题" name="theme">
-            <Select style={{ width: 200 }}>
+            <Select
+              style={{ width: 200 }}
+              onChange={(value) => {
+                useThemeStore.getState().setTheme(value);
+              }}
+            >
               <Select.Option value="light">浅色模式</Select.Option>
               <Select.Option value="dark">深色模式</Select.Option>
               <Select.Option value="system">跟随系统</Select.Option>
