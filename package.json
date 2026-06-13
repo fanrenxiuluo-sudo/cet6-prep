@@ -1,7 +1,7 @@
 {
   "name": "cet6-prep",
   "productName": "CET6备考助手",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "description": "英语六级备考助手 - 练习、错题本、统计、成就系统",
   "main": ".vite/build/main.js",
   "private": true,
@@ -36,6 +36,8 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "CET6备考助手",
+      "artifactName": "CET6.Setup.${version}.${ext}",
+      "include": "build/installer.nsh",
       "installerLanguages": ["zh_CN"],
       "language": "2052"
     },
