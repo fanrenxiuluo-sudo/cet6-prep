@@ -6,6 +6,7 @@ import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import fs from 'fs';
 import path from 'path';
+import { execFileSync } from 'child_process';
 
 /**
  * 递归复制目录
@@ -21,6 +22,20 @@ function copyDirSync(src: string, dest: string): void {
     } else {
       fs.copyFileSync(srcPath, destPath);
     }
+  }
+}
+
+function ensurePrismaClientGenerated(): void {
+  const generatedClient = path.join(__dirname, 'node_modules', '.prisma', 'client', 'index.js');
+  const needsGenerate = !fs.existsSync(generatedClient)
+    || fs.readFileSync(generatedClient, 'utf-8').includes('did not initialize yet');
+
+  if (needsGenerate) {
+    const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+    execFileSync(npx, ['prisma', 'generate'], {
+      cwd: __dirname,
+      stdio: 'inherit',
+    });
   }
 }
 
@@ -55,6 +70,8 @@ const config: ForgeConfig = {
   hooks: {
     // 打包后复制 node_modules 中 Prisma 相关包到输出目录
     packageAfterCopy: async (_forgeConfig, buildPath) => {
+      ensurePrismaClientGenerated();
+
       const modulesToCopy = [
         '@prisma/client',
         '@prisma/engines',

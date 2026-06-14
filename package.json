@@ -1,16 +1,17 @@
 {
   "name": "cet6-prep",
   "productName": "CET6备考助手",
-  "version": "3.4.1",
+  "version": "3.4.2",
   "description": "英语六级备考助手 - 练习、错题本、统计、成就系统",
   "main": ".vite/build/main.js",
   "private": true,
   "scripts": {
     "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
-    "dist": "electron-forge package && electron-builder --prepackaged out/CET6备考助手-win32-x64 --win nsis",
+    "prisma:generate": "prisma generate",
+    "package": "npm run prisma:generate && electron-forge package",
+    "make": "npm run prisma:generate && electron-forge make",
+    "publish": "npm run prisma:generate && electron-forge publish",
+    "dist": "npm run prisma:generate && electron-forge package && electron-builder --prepackaged out/CET6备考助手-win32-x64 --win nsis",
     "lint": "eslint --ext .ts,.tsx ."
   },
   "keywords": [

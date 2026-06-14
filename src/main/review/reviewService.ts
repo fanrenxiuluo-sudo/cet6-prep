@@ -312,7 +312,7 @@ export async function getOverviewStats(
   // 最长连续
   let longestStreak = 0;
   let temp = 0;
-  let prevDay: string = '';
+  let prevDay = '';
   for (const day of dayKeys) {
     if (prevDay) {
       const diffDays = (new Date(day).getTime() - new Date(prevDay).getTime()) / 86400000;
